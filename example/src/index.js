@@ -15,12 +15,8 @@ AppPrototype = App.prototype;
 AppPrototype.getChildContext = function() {
     return {
         muiTheme: {
-            styles: {
-                link: {
-                    color: "#000000",
-                    hoverColor: "#ff0000",
-                    downColor: "#0000ff"
-                }
+            palette: {
+                accentColor: "#ff4081"
             }
         }
     };
@@ -33,8 +29,16 @@ AppPrototype.render = function() {
             },
             virt.createView(Link, {
                 href: "#link"
-            }, "This is a Link")
-        )
+            }, "Link 1"),
+            virt.createView("br"),
+            virt.createView(Link, {
+                href: "#link"
+            }, "Link 2"),
+            virt.createView("br"),
+            virt.createView(Link, {
+                href: "#link"
+            }, "Link 3")
+        )       
     );
 };
 

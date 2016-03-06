@@ -1,4 +1,5 @@
 var virt = require("virt"),
+    css = require("css"),
     propTypes = require("prop_types"),
     extend = require("extend");
 
@@ -43,13 +44,8 @@ virt.Component.extend(Link, "virt-ui-Link");
 
 Link.contextTypes = {
     muiTheme: propTypes.implement({
-        styles: propTypes.implement({
-            link: propTypes.implement({
-                color: propTypes.string.isRequired,
-                hoverColor: propTypes.string,
-                focusColor: propTypes.string,
-                downColor: propTypes.string
-            }).isRequired
+        palette: propTypes.implement({
+            accentColor: propTypes.string
         }).isRequired
     }).isRequired
 };
@@ -60,7 +56,6 @@ LinkPrototype.__onMouseOver = function(e) {
     if (this.props.onMouseOver) {
         this.props.onMouseOver(e);
     }
-
     this.setState({
         hover: true
     });
@@ -70,7 +65,6 @@ LinkPrototype.__onMouseOut = function(e) {
     if (this.props.onMouseOut) {
         this.props.onMouseOut(e);
     }
-
     this.setState({
         hover: false,
         down: false
@@ -81,7 +75,6 @@ LinkPrototype.__onMouseDown = function(e) {
     if (this.props.onMouseDown) {
         this.props.onMouseDown(e);
     }
-
     this.setState({
         down: true
     });
@@ -91,7 +84,6 @@ LinkPrototype.__onMouseUp = function(e) {
     if (this.props.onMouseUp) {
         this.props.onMouseUp(e);
     }
-
     this.setState({
         down: false
     });
@@ -101,7 +93,6 @@ LinkPrototype.__onFocus = function(e) {
     if (this.props.onFocus) {
         this.props.onFocus(e);
     }
-
     this.setState({
         focus: true
     });
@@ -111,31 +102,33 @@ LinkPrototype.__onBlur = function(e) {
     if (this.props.onBlur) {
         this.props.onBlur(e);
     }
-
     this.setState({
         focus: false
     });
 };
 
 LinkPrototype.getStyle = function() {
-    var theme = this.context.muiTheme.styles.link,
+    var accentColor = this.context.muiTheme.palette.accentColor,
         state = this.state,
-        styles = {
-            color: theme.color,
+        style = {
+            color: accentColor,
+            outline: "none",
             textDecoration: "none"
         };
 
+    css.transition(style, "color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms");
+
     if (state.hover) {
-        styles.color = theme.hoverColor || theme.color;
+        style.color = css.darken(accentColor, 0.25);
     }
     if (state.focus) {
-        styles.color = theme.focusColor || theme.color;
+        style.color = css.darken(accentColor, 0.25);
     }
     if (state.down) {
-        styles.color = theme.downColor || theme.color;
+        style.color = css.darken(accentColor, 0.5);
     }
 
-    return styles;
+    return style;
 };
 
 LinkPrototype.render = function() {

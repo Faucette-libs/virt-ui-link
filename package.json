@@ -25,6 +25,7 @@
     "virt-dom": "git://github.com/nathanfaucett/virt-dom.git"
   },
   "dependencies": {
+    "css": "git://github.com/nathanfaucett/css.git",
     "extend": "git://github.com/nathanfaucett/extend.git",
     "prop_types": "git://github.com/nathanfaucett/prop_types.git",
     "virt": "git://github.com/nathanfaucett/virt.git"

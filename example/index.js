@@ -76,12 +76,8 @@ AppPrototype = App.prototype;
 AppPrototype.getChildContext = function() {
     return {
         muiTheme: {
-            styles: {
-                link: {
-                    color: "#000000",
-                    hoverColor: "#ff0000",
-                    downColor: "#0000ff"
-                }
+            palette: {
+                accentColor: "#ff4081"
             }
         }
     };
@@ -94,8 +90,16 @@ AppPrototype.render = function() {
             },
             virt.createView(Link, {
                 href: "#link"
-            }, "This is a Link")
-        )
+            }, "Link 1"),
+            virt.createView("br"),
+            virt.createView(Link, {
+                href: "#link"
+            }, "Link 2"),
+            virt.createView("br"),
+            virt.createView(Link, {
+                href: "#link"
+            }, "Link 3")
+        )       
     );
 };
 
@@ -178,7 +182,8 @@ function(require, exports, module, undefined, global) {
 /* ../../src/index.js */
 
 var virt = require(1),
-    propTypes = require(177),
+    css = require(192),
+    propTypes = require(193),
     extend = require(24);
 
 
@@ -222,13 +227,8 @@ virt.Component.extend(Link, "virt-ui-Link");
 
 Link.contextTypes = {
     muiTheme: propTypes.implement({
-        styles: propTypes.implement({
-            link: propTypes.implement({
-                color: propTypes.string.isRequired,
-                hoverColor: propTypes.string,
-                focusColor: propTypes.string,
-                downColor: propTypes.string
-            }).isRequired
+        palette: propTypes.implement({
+            accentColor: propTypes.string
         }).isRequired
     }).isRequired
 };
@@ -239,7 +239,6 @@ LinkPrototype.__onMouseOver = function(e) {
     if (this.props.onMouseOver) {
         this.props.onMouseOver(e);
     }
-
     this.setState({
         hover: true
     });
@@ -249,7 +248,6 @@ LinkPrototype.__onMouseOut = function(e) {
     if (this.props.onMouseOut) {
         this.props.onMouseOut(e);
     }
-
     this.setState({
         hover: false,
         down: false
@@ -260,7 +258,6 @@ LinkPrototype.__onMouseDown = function(e) {
     if (this.props.onMouseDown) {
         this.props.onMouseDown(e);
     }
-
     this.setState({
         down: true
     });
@@ -270,7 +267,6 @@ LinkPrototype.__onMouseUp = function(e) {
     if (this.props.onMouseUp) {
         this.props.onMouseUp(e);
     }
-
     this.setState({
         down: false
     });
@@ -280,7 +276,6 @@ LinkPrototype.__onFocus = function(e) {
     if (this.props.onFocus) {
         this.props.onFocus(e);
     }
-
     this.setState({
         focus: true
     });
@@ -290,31 +285,33 @@ LinkPrototype.__onBlur = function(e) {
     if (this.props.onBlur) {
         this.props.onBlur(e);
     }
-
     this.setState({
         focus: false
     });
 };
 
 LinkPrototype.getStyle = function() {
-    var theme = this.context.muiTheme.styles.link,
+    var accentColor = this.context.muiTheme.palette.accentColor,
         state = this.state,
-        styles = {
-            color: theme.color,
+        style = {
+            color: accentColor,
+            outline: "none",
             textDecoration: "none"
         };
 
+    css.transition(style, "color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms");
+
     if (state.hover) {
-        styles.color = theme.hoverColor || theme.color;
+        style.color = css.darken(accentColor, 0.25);
     }
     if (state.focus) {
-        styles.color = theme.focusColor || theme.color;
+        style.color = css.darken(accentColor, 0.25);
     }
     if (state.down) {
-        styles.color = theme.downColor || theme.color;
+        style.color = css.darken(accentColor, 0.5);
     }
 
-    return styles;
+    return style;
 };
 
 LinkPrototype.render = function() {
@@ -1302,7 +1299,7 @@ function isUndefined(value) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt/node_modules/is_native/src/index.js */
+/* ../../node_modules/virt/node_modules/is_array/node_modules/is_native/src/index.js */
 
 var isFunction = require(16),
     isNullOrUndefined = require(20),
@@ -2022,7 +2019,7 @@ NodePrototype.__mountChildren = function(renderedView, transaction) {
 
     this.renderedChildren = renderedChildren;
 
-    renderedView.children = arrayMap(renderedView.children, function(child, index) {
+    renderedView.children = arrayMap(renderedView.children, function renderChild(child, index) {
         var node, id;
 
         if (isPrimitiveView(child)) {
@@ -3341,7 +3338,7 @@ function diffChildren(node, previous, next, transaction) {
 
 function diffChild(root, parentNode, previous, next, previousChild, nextChild, parentId, index, transaction) {
     var node, id;
-
+    
     if (previousChild !== nextChild) {
         if (isNullOrUndefined(previousChild)) {
             if (isPrimitiveView(nextChild)) {
@@ -3920,15 +3917,14 @@ function(require, exports, module, undefined, global) {
 var extend = require(24);
 
 
-var handlers = extend({},
+extend(
+    exports,
     require(90),
     require(91),
     require(92),
-    require(93)
+    require(93),
+    require(94)
 );
-
-
-module.exports = handlers;
 
 
 },
@@ -3938,9 +3934,9 @@ function(require, exports, module, undefined, global) {
 var virt = require(1),
     isNull = require(26),
     isUndefined = require(27),
-    Adapter = require(113),
-    rootsById = require(114),
-    getRootNodeId = require(115);
+    Adapter = require(123),
+    rootsById = require(124),
+    getRootNodeId = require(125);
 
 
 var Root = virt.Root;
@@ -3972,9 +3968,9 @@ function render(nextView, containerDOMNode, callback) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/unmount.js */
 
-var rootsById = require(114),
-    getRootNodeInContainer = require(172),
-    getNodeId = require(171);
+var rootsById = require(124),
+    getRootNodeInContainer = require(187),
+    getNodeId = require(186);
 
 
 module.exports = unmount;
@@ -3997,7 +3993,7 @@ function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/utils/findDOMNode.js */
 
 var isString = require(18),
-    getNodeById = require(103);
+    getNodeById = require(104);
 
 
 module.exports = findDOMNode;
@@ -4022,7 +4018,7 @@ function(require, exports, module, undefined, global) {
 
 var virt = require(1),
     isString = require(18),
-    rootsById = require(114);
+    rootsById = require(124);
 
 
 var getRootIdFromId = virt.getRootIdFromId;
@@ -4046,7 +4042,7 @@ function(require, exports, module, undefined, global) {
 
 var virt = require(1),
     isString = require(18),
-    eventHandlersById = require(112);
+    eventHandlersById = require(122);
 
 
 var getRootIdFromId = virt.getRootIdFromId;
@@ -4068,18 +4064,18 @@ function findDOMNode(value) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/worker/createWorkerRender.js */
 
-var Messenger = require(116),
+var Messenger = require(126),
     isNull = require(26),
-    MessengerWorkerAdapter = require(173),
-    eventHandlersById = require(112),
+    MessengerWorkerAdapter = require(188),
+    eventHandlersById = require(122),
     nativeDOMHandlers = require(71),
-    eventHandlersById = require(112),
-    getRootNodeId = require(115),
-    registerNativeComponentHandlers = require(120),
-    getWindow = require(118),
-    EventHandler = require(121),
-    applyEvents = require(123),
-    applyPatches = require(124);
+    eventHandlersById = require(122),
+    getRootNodeId = require(125),
+    registerNativeComponentHandlers = require(130),
+    getWindow = require(128),
+    EventHandler = require(131),
+    applyEvents = require(134),
+    applyPatches = require(135);
 
 
 module.exports = createWorkerRender;
@@ -4133,8 +4129,8 @@ function(require, exports, module, undefined, global) {
 
 var virt = require(1),
     isNull = require(26),
-    rootsById = require(114),
-    WorkerAdapter = require(174);
+    rootsById = require(124),
+    WorkerAdapter = require(189);
 
 
 var root = null;
@@ -4166,17 +4162,17 @@ render.unmount = function() {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/websocket/createWebSocketRender.js */
 
-var Messenger = require(116),
+var Messenger = require(126),
     isNull = require(26),
-    MessengerWebSocketAdapter = require(175),
-    eventHandlersById = require(112),
-    getRootNodeId = require(115),
+    MessengerWebSocketAdapter = require(190),
+    eventHandlersById = require(122),
+    getRootNodeId = require(125),
     nativeDOMHandlers = require(71),
-    registerNativeComponentHandlers = require(120),
-    getWindow = require(118),
-    EventHandler = require(121),
-    applyEvents = require(123),
-    applyPatches = require(124);
+    registerNativeComponentHandlers = require(130),
+    getWindow = require(128),
+    EventHandler = require(131),
+    applyEvents = require(134),
+    applyPatches = require(135);
 
 
 module.exports = createWebSocketRender;
@@ -4229,8 +4225,8 @@ function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/websocket/renderWebSocket.js */
 
 var virt = require(1),
-    rootsById = require(114),
-    WebSocketAdapter = require(176);
+    rootsById = require(124),
+    WebSocketAdapter = require(191);
 
 
 module.exports = render;
@@ -4563,7 +4559,7 @@ function Input(props, children, context) {
         return _this.__onInput(e);
     };
     this.onChange = function(e) {
-        return _this.__onChange(e);
+        return _this.__onChange(e, false);
     };
     this.setChecked = function(checked, callback) {
         return _this.__setChecked(checked, callback);
@@ -4598,8 +4594,13 @@ Input.getDefaultProps = function() {
 };
 
 InputPrototype.componentDidMount = function() {
-    if (this.props.autoFocus) {
+    var props = this.props;
+
+    if (props.autoFocus) {
         this.__focus();
+    }
+    if (props.type === "radio" && props.checked) {
+        Input_uncheckSiblings(this, this.__node.parent.renderedChildren);
     }
 };
 
@@ -4617,7 +4618,19 @@ InputPrototype.__onInput = function(e) {
 };
 
 InputPrototype.__onChange = function(e, fromInput) {
-    var props = this.props;
+    var props = this.props,
+        type = props.type,
+        isRadio = type === "radio";
+
+    if (isRadio || type === "checkbox") {
+        e.preventDefault();
+        props.checked = !props.checked;
+        this.__setChecked(props.checked);
+
+        if (isRadio) {
+            Input_uncheckSiblings(this, this.__node.parent.renderedChildren);
+        }
+    }
 
     if (fromInput && props.onInput) {
         props.onInput(e);
@@ -4628,6 +4641,26 @@ InputPrototype.__onChange = function(e, fromInput) {
 
     this.forceUpdate();
 };
+
+function Input_uncheckSiblings(input, siblings) {
+    var i = -1,
+        il = siblings.length - 1,
+        sibling, props;
+
+    while (i++ < il) {
+        sibling = siblings[i].component;
+
+        if (
+            input !== sibling &&
+            sibling.constructor === Input &&
+            (props = sibling.props) &&
+            props.type === "radio"
+        ) {
+            props.checked = !props.checked;
+            sibling.__setChecked(props.checked);
+        }
+    }
+}
 
 InputPrototype.__setChecked = function(checked, callback) {
     this.emitMessage("virt.dom.Input.setChecked", {
@@ -4883,9 +4916,97 @@ TextAreaPrototype.render = function() {
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/nativeDOM/nodeHandlers.js */
+
+var domDimensions = require(95),
+    findDOMNode = require(74);
+
+
+var nodeHandlers = exports;
+
+
+nodeHandlers["virt.getViewTop"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.top(node));
+    } else {
+        callback(new Error("getViewTop: No DOM node found with id " + data.id));
+    }
+};
+nodeHandlers["virt.getViewRight"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.right(node));
+    } else {
+        callback(new Error("getViewRight: No DOM node found with id " + data.id));
+    }
+};
+nodeHandlers["virt.getViewBottom"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.bottom(node));
+    } else {
+        callback(new Error("getViewBottom: No DOM node found with id " + data.id));
+    }
+};
+nodeHandlers["virt.getViewLeft"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.left(node));
+    } else {
+        callback(new Error("getViewLeft: No DOM node found with id " + data.id));
+    }
+};
+
+nodeHandlers["virt.getViewWidth"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.width(node));
+    } else {
+        callback(new Error("getViewWidth: No DOM node found with id " + data.id));
+    }
+};
+nodeHandlers["virt.getViewHeight"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions.height(node));
+    } else {
+        callback(new Error("getViewHeight: No DOM node found with id " + data.id));
+    }
+};
+
+nodeHandlers["virt.getViewDimensions"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, domDimensions(node));
+    } else {
+        callback(new Error("getViewDimensions: No DOM node found with id " + data.id));
+    }
+};
+
+nodeHandlers["virt.getViewProperty"] = function getWidth(data, callback) {
+    var node = findDOMNode(data.id);
+
+    if (node) {
+        callback(undefined, node[data.property]);
+    } else {
+        callback(new Error("getViewDimensions: No DOM node found with id " + data.id));
+    }
+};
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/nativeDOM/buttonHandlers.js */
 
-var sharedHandlers = require(94);
+var sharedHandlers = require(106);
 
 
 var buttonHandlers = exports;
@@ -4899,7 +5020,7 @@ buttonHandlers["virt.dom.Button.blur"] = sharedHandlers.blur;
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/nativeDOM/imageHandlers.js */
 
-var consts = require(105),
+var consts = require(113),
     findEventHandler = require(76),
     findDOMNode = require(74);
 
@@ -4922,7 +5043,7 @@ imageHandlers["virt.dom.Image.mount"] = function(data, callback) {
         node.src = data.src;
         callback();
     } else {
-        callback(new Error("events(data, callback): No DOM node found with id " + data.id));
+        callback(new Error("mount: No DOM node found with id " + data.id));
     }
 };
 
@@ -4943,7 +5064,7 @@ imageHandlers["virt.dom.Image.setSrc"] = function(data, callback) {
 
         callback();
     } else {
-        callback(new Error("events(data, callback): No DOM node found with id " + data.id));
+        callback(new Error("setSrc: No DOM node found with id " + data.id));
     }
 };
 
@@ -4953,7 +5074,7 @@ function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/nativeDOM/inputHandlers.js */
 
 var findDOMNode = require(74),
-    sharedHandlers = require(94);
+    sharedHandlers = require(106);
 
 
 var inputHandlers = exports;
@@ -4978,7 +5099,7 @@ inputHandlers["virt.dom.Input.setChecked"] = function(data, callback) {
         }
         callback();
     } else {
-        callback(new Error("setChecked(value, callback): No DOM node found with id " + data.id));
+        callback(new Error("setChecked: No DOM node found with id " + data.id));
     }
 };
 
@@ -4987,7 +5108,7 @@ inputHandlers["virt.dom.Input.setChecked"] = function(data, callback) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/nativeDOM/textareaHandlers.js */
 
-var sharedHandlers = require(94);
+var sharedHandlers = require(106);
 
 
 var textareaHandlers = exports;
@@ -5003,11 +5124,366 @@ textareaHandlers["virt.dom.TextArea.blur"] = sharedHandlers.blur;
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/src/index.js */
+
+var getCurrentStyle = require(96),
+    isElement = require(97);
+
+
+module.exports = domDimensions;
+
+
+function domDimensions(node) {
+    var dimensions = new Dimensions(),
+        clientRect;
+        
+    if (isElement(node)) {
+        clientRect = node.getBoundingClientRect();
+
+        dimensions.top = clientRect.top;
+        dimensions.right = clientRect.left + node.offsetWidth;
+        dimensions.bottom = clientRect.top + node.offsetHeight;
+        dimensions.left = clientRect.left;
+        dimensions.width = dimensions.right - dimensions.left;
+        dimensions.height = dimensions.bottom - dimensions.top;
+
+        return dimensions;
+    } else {
+        return dimensions;
+    }
+}
+
+function Dimensions() {
+    this.top = 0;
+    this.right = 0;
+    this.bottom = 0;
+    this.left = 0;
+    this.width = 0;
+    this.height = 0;
+}
+
+domDimensions.top = function(node) {
+    if (isElement(node)) {
+        return node.getBoundingClientRect().top;
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.right = function(node) {
+    if (isElement(node)) {
+        return domDimensions.left(node) + node.offsetWidth;
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.bottom = function(node) {
+    if (isElement(node)) {
+        return domDimensions.top(node) + node.offsetHeight;
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.left = function(node) {
+    if (isElement(node)) {
+        return node.getBoundingClientRect().left;
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.width = function(node) {
+    if (isElement(node)) {
+        return domDimensions.right(node) - domDimensions.left(node);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.height = function(node) {
+    if (isElement(node)) {
+        return domDimensions.bottom(node) - domDimensions.top(node);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.marginTop = function(node) {
+    if (isElement(node)) {
+        return parseInt(getCurrentStyle(node, "marginTop"), 10);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.marginRight = function(node) {
+    if (isElement(node)) {
+        return parseInt(getCurrentStyle(node, "marginRight"), 10);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.marginBottom = function(node) {
+    if (isElement(node)) {
+        return parseInt(getCurrentStyle(node, "marginRight"), 10);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.marginLeft = function(node) {
+    if (isElement(node)) {
+        return parseInt(getCurrentStyle(node, "marginLeft"), 10);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.outerWidth = function(node) {
+    if (isElement(node)) {
+        return domDimensions.width(node) + domDimensions.marginLeft(node) + domDimensions.marginRight(node);
+    } else {
+        return 0;
+    }
+};
+
+domDimensions.outerHeight = function(node) {
+    if (isElement(node)) {
+        return domDimensions.height(node) + domDimensions.marginTop(node) + domDimensions.marginBottom(node);
+    } else {
+        return 0;
+    }
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/get_current_style/src/index.js */
+
+var supports = require(98),
+    environment = require(99),
+    isElement = require(97),
+    isString = require(18),
+    camelize = require(100);
+
+
+var baseGetCurrentStyles;
+
+
+module.exports = getCurrentStyle;
+
+
+function getCurrentStyle(node, style) {
+    if (isElement(node)) {
+        if (isString(style)) {
+            return baseGetCurrentStyles(node)[camelize(style)] || "";
+        } else {
+            return baseGetCurrentStyles(node);
+        }
+    } else {
+        if (isString(style)) {
+            return "";
+        } else {
+            return null;
+        }
+    }
+}
+
+if (supports.dom && environment.document.defaultView) {
+    baseGetCurrentStyles = function(node) {
+        return node.ownerDocument.defaultView.getComputedStyle(node, "");
+    };
+} else {
+    baseGetCurrentStyles = function(node) {
+        if (node.currentStyle) {
+            return node.currentStyle;
+        } else {
+            return node.style;
+        }
+    };
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/is_element/src/index.js */
+
+var isNode = require(101);
+
+
+module.exports = isElement;
+
+
+function isElement(value) {
+    return isNode(value) && value.nodeType === 1;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/supports/src/index.js */
+
+var environment = require(99);
+
+
+var supports = module.exports;
+
+
+supports.dom = !!(typeof(window) !== "undefined" && window.document && window.document.createElement);
+supports.workers = typeof(Worker) !== "undefined";
+
+supports.eventListeners = supports.dom && !!environment.window.addEventListener;
+supports.attachEvents = supports.dom && !!environment.window.attachEvent;
+
+supports.viewport = supports.dom && !!environment.window.screen;
+supports.touch = supports.dom && "ontouchstart" in environment.window;
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/environment/src/index.js */
+
+var environment = exports,
+
+    hasWindow = typeof(window) !== "undefined",
+    userAgent = hasWindow ? window.navigator.userAgent : "";
+
+
+environment.worker = typeof(importScripts) !== "undefined";
+
+environment.browser = environment.worker || !!(
+    hasWindow &&
+    typeof(navigator) !== "undefined" &&
+    window.document
+);
+
+environment.node = !environment.worker && !environment.browser;
+
+environment.mobile = environment.browser && /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
+environment.window = (
+    hasWindow ? window :
+    typeof(global) !== "undefined" ? global :
+    typeof(self) !== "undefined" ? self : {}
+);
+
+environment.pixelRatio = environment.window.devicePixelRatio || 1;
+
+environment.document = typeof(document) !== "undefined" ? document : {};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/camelize/src/index.js */
+
+var reInflect = require(102),
+    capitalizeString = require(103);
+
+
+module.exports = camelize;
+
+
+function camelize(string, lowFirstLetter) {
+    var parts, part, i, il;
+
+    lowFirstLetter = lowFirstLetter !== false;
+    parts = string.match(reInflect);
+    i = lowFirstLetter ? 0 : -1;
+    il = parts.length - 1;
+
+    while (i++ < il) {
+        parts[i] = capitalizeString(parts[i]);
+    }
+
+    if (lowFirstLetter && (part = parts[0])) {
+        parts[0] = part.charAt(0).toLowerCase() + part.slice(1);
+    }
+
+    return parts.join("");
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/is_node/src/index.js */
+
+var isString = require(18),
+    isNullOrUndefined = require(20),
+    isNumber = require(21),
+    isFunction = require(16);
+
+
+var isNode;
+
+
+if (typeof(Node) !== "undefined" && isFunction(Node)) {
+    isNode = function isNode(value) {
+        return value instanceof Node;
+    };
+} else {
+    isNode = function isNode(value) {
+        return (!isNullOrUndefined(value) &&
+            isNumber(value.nodeType) &&
+            isString(value.nodeName)
+        );
+    };
+}
+
+
+module.exports = isNode;
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/re_inflect/src/index.js */
+
+module.exports = /[^A-Z-_ ]+|[A-Z][^A-Z-_ ]+|[^a-z-_ ]+/g;
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/node_modules/dom_dimensions/node_modules/capitalize_string/src/index.js */
+
+module.exports = capitalizeString;
+
+
+function capitalizeString(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/utils/getNodeById.js */
+
+var nodeCache = require(105);
+
+
+module.exports = getNodeById;
+
+
+function getNodeById(id) {
+    return nodeCache[id];
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/utils/nodeCache.js */
+
+
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/nativeDOM/sharedHandlers.js */
 
-var domCaret = require(95),
-    blurNode = require(96),
-    focusNode = require(97),
+var domCaret = require(107),
+    blurNode = require(108),
+    focusNode = require(109),
     findDOMNode = require(74);
 
 
@@ -5020,18 +5496,22 @@ sharedInputHandlers.getValue = function(data, callback) {
     if (node) {
         callback(undefined, node.value);
     } else {
-        callback(new Error("getValue(callback): No DOM node found with id " + data.id));
+        callback(new Error("getValue: No DOM node found with id " + data.id));
     }
 };
 
 sharedInputHandlers.setValue = function(data, callback) {
-    var node = findDOMNode(data.id);
+    var node = findDOMNode(data.id),
+        value;
 
     if (node) {
-        node.value = data.value || "";
+        value = data.value || "";
+        if (value !== node.value) {
+            node.value = value;
+        }
         callback();
     } else {
-        callback(new Error("setValue(data, callback): No DOM node found with id " + data.id));
+        callback(new Error("setValue: No DOM node found with id " + data.id));
     }
 };
 
@@ -5041,7 +5521,7 @@ sharedInputHandlers.getSelection = function(data, callback) {
     if (node) {
         callback(undefined, domCaret.get(node));
     } else {
-        callback(new Error("getSelection(callback): No DOM node found with id " + data.id));
+        callback(new Error("getSelection: No DOM node found with id " + data.id));
     }
 };
 
@@ -5052,7 +5532,7 @@ sharedInputHandlers.setSelection = function(data, callback) {
         domCaret.set(node, data.start, data.end);
         callback();
     } else {
-        callback(new Error("setSelection(data, callback): No DOM node found with id " + data.id));
+        callback(new Error("setSelection: No DOM node found with id " + data.id));
     }
 };
 
@@ -5063,7 +5543,7 @@ sharedInputHandlers.focus = function(data, callback) {
         focusNode(node);
         callback();
     } else {
-        callback(new Error("focus(callback): No DOM node found with id " + data.id));
+        callback(new Error("focus: No DOM node found with id " + data.id));
     }
 };
 
@@ -5074,7 +5554,7 @@ sharedInputHandlers.blur = function(data, callback) {
         blurNode(node);
         callback();
     } else {
-        callback(new Error("blur(callback): No DOM node found with id " + data.id));
+        callback(new Error("blur: No DOM node found with id " + data.id));
     }
 };
 
@@ -5083,11 +5563,11 @@ sharedInputHandlers.blur = function(data, callback) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/node_modules/dom_caret/src/index.js */
 
-var environment = require(98),
-    focusNode = require(97),
-    blurNode = require(96),
-    getActiveElement = require(99),
-    isTextInputElement = require(100);
+var environment = require(99),
+    focusNode = require(109),
+    blurNode = require(108),
+    getActiveElement = require(110),
+    isTextInputElement = require(111);
 
 
 var domCaret = exports,
@@ -5205,43 +5685,10 @@ function focusNode(node) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/node_modules/environment/src/index.js */
-
-var environment = exports,
-
-    hasWindow = typeof(window) !== "undefined",
-    userAgent = hasWindow ? window.navigator.userAgent : "";
-
-
-environment.worker = typeof(importScripts) !== "undefined";
-
-environment.browser = environment.worker || !!(
-    hasWindow &&
-    typeof(navigator) !== "undefined" &&
-    window.document
-);
-
-environment.node = !environment.worker && !environment.browser;
-
-environment.mobile = environment.browser && /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-
-environment.window = (
-    hasWindow ? window :
-    typeof(global) !== "undefined" ? global :
-    typeof(self) !== "undefined" ? self : {}
-);
-
-environment.pixelRatio = environment.window.devicePixelRatio || 1;
-
-environment.document = typeof(document) !== "undefined" ? document : {};
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/node_modules/get_active_element/src/index.js */
 
-var isDocument = require(102),
-    environment = require(98);
+var isDocument = require(112),
+    environment = require(99);
 
 
 var document = environment.document;
@@ -5287,36 +5734,6 @@ function isTextInputElement(value) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/node_modules/is_node/src/index.js */
-
-var isString = require(18),
-    isNullOrUndefined = require(20),
-    isNumber = require(21),
-    isFunction = require(16);
-
-
-var isNode;
-
-
-if (typeof(Node) !== "undefined" && isFunction(Node)) {
-    isNode = function isNode(value) {
-        return value instanceof Node;
-    };
-} else {
-    isNode = function isNode(value) {
-        return (!isNullOrUndefined(value) &&
-            isNumber(value.nodeType) &&
-            isString(value.nodeName)
-        );
-    };
-}
-
-
-module.exports = isNode;
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/node_modules/is_document/src/index.js */
 
 var isNode = require(101);
@@ -5332,33 +5749,13 @@ function isDocument(value) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/utils/getNodeById.js */
-
-var nodeCache = require(104);
-
-
-module.exports = getNodeById;
-
-
-function getNodeById(id) {
-    return nodeCache[id];
-}
-
-
-},
-function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/utils/nodeCache.js */
-
-
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/consts.js */
 
-var map = require(106),
-    forEach = require(107),
-    keyMirror = require(52);
+var map = require(114),
+    forEach = require(115),
+    keyMirror = require(52),
+    removeTop = require(116),
+    replaceTopWithOn = require(117);
 
 
 var consts = exports,
@@ -5367,7 +5764,13 @@ var consts = exports,
     propNameToTopLevel = consts.propNameToTopLevel = {},
 
     eventTypes = [
+        "topAbort",
+        "topAnimationEnd",
+        "topAnimationIteration",
+        "topAnimationStart",
         "topBlur",
+        "topCanPlay",
+        "topCanPlayThrough",
         "topChange",
         "topClick",
         "topCompositionEnd",
@@ -5385,6 +5788,10 @@ var consts = exports,
         "topDragOver",
         "topDragStart",
         "topDrop",
+        "topDurationChange",
+        "topEmptied",
+        "topEncrypted",
+        "topEnded",
         "topError",
         "topFocus",
         "topInput",
@@ -5392,31 +5799,31 @@ var consts = exports,
         "topKeyPress",
         "topKeyUp",
         "topLoad",
+        "topLoadStart",
+        "topLoadedData",
+        "topLoadedMetadata",
         "topMouseDown",
+        "topMouseEnter",
         "topMouseMove",
         "topMouseOut",
         "topMouseOver",
-        "topMouseEnter",
         "topMouseUp",
         "topOrientationChange",
         "topPaste",
+        "topPause",
+        "topPlay",
+        "topPlaying",
+        "topProgress",
+        "topRateChange",
+        "topRateChange",
         "topReset",
         "topResize",
-        "topScroll",
-        "topSelectionChange",
-        "topSubmit",
-        "topTextInput",
-        "topTouchCancel",
-        "topTouchEnd",
-        "topTouchMove",
-        "topTouchStart",
-        "topWheel",
-        "topRateChange",
         "topScroll",
         "topSeeked",
         "topSeeking",
         "topSelectionChange",
         "topStalled",
+        "topSubmit",
         "topSuspend",
         "topTextInput",
         "topTimeUpdate",
@@ -5424,6 +5831,8 @@ var consts = exports,
         "topTouchEnd",
         "topTouchMove",
         "topTouchStart",
+        "topTouchTap",
+        "topTransitionEnd",
         "topVolumeChange",
         "topWaiting",
         "topWheel"
@@ -5438,21 +5847,13 @@ consts.topLevelTypes = keyMirror(eventTypes);
 
 consts.propNames = map(eventTypes, replaceTopWithOn);
 
-forEach(eventTypes, function(str) {
-    propNameToTopLevel[replaceTopWithOn(str)] = str;
+forEach(eventTypes, function(string) {
+    propNameToTopLevel[replaceTopWithOn(string)] = string;
 });
 
-forEach(eventTypes, function(str) {
-    topLevelToEvent[str] = removeTop(str).toLowerCase();
+forEach(eventTypes, function(string) {
+    topLevelToEvent[string] = removeTop(string).toLowerCase();
 });
-
-function replaceTopWithOn(str) {
-    return str.replace(/^top/, "on");
-}
-
-function removeTop(str) {
-    return str.replace(/^top/, "");
-}
 
 
 },
@@ -5461,9 +5862,9 @@ function(require, exports, module, undefined, global) {
 
 var isArrayLike = require(53),
     isNullOrUndefined = require(20),
-    fastBindThis = require(108),
+    fastBindThis = require(118),
     arrayMap = require(23),
-    objectMap = require(109);
+    objectMap = require(119);
 
 
 module.exports = map;
@@ -5483,9 +5884,9 @@ function(require, exports, module, undefined, global) {
 
 var isArrayLike = require(53),
     isNullOrUndefined = require(20),
-    fastBindThis = require(108),
-    arrayForEach = require(110),
-    objectForEach = require(111);
+    fastBindThis = require(118),
+    arrayForEach = require(120),
+    objectForEach = require(121);
 
 
 module.exports = forEach;
@@ -5496,6 +5897,30 @@ function forEach(value, callback, thisArg) {
     return isArrayLike(value) ?
         arrayForEach(value, callback) :
         objectForEach(value, callback);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/removeTop.js */
+
+module.exports = removeTop;
+
+
+function removeTop(str) {
+    return str.replace(/^top/, "");
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/replaceTopWithOn.js */
+
+module.exports = replaceTopWithOn;
+
+
+function replaceTopWithOn(string) {
+    return string.replace(/^top/, "on");
 }
 
 
@@ -5626,25 +6051,21 @@ function(require, exports, module, undefined, global) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/Adapter.js */
 
-var virt = require(1),
-    extend = require(24),
-    Messenger = require(116),
-    createMessengerAdapter = require(117),
-    eventHandlersById = require(112),
-    getWindow = require(118),
+var extend = require(24),
+    Messenger = require(126),
+    createMessengerAdapter = require(127),
+    eventHandlersById = require(122),
+    getWindow = require(128),
     nativeDOMComponents = require(70),
     nativeDOMHandlers = require(71),
-    registerNativeComponents = require(119),
-    registerNativeComponentHandlers = require(120),
-    getNodeById = require(103),
-    consts = require(105),
-    EventHandler = require(121),
-    eventClassMap = require(122),
-    applyEvents = require(123),
-    applyPatches = require(124);
-
-
-var traverseAncestors = virt.traverseAncestors;
+    registerNativeComponents = require(129),
+    registerNativeComponentHandlers = require(130),
+    consts = require(113),
+    EventHandler = require(131),
+    eventClassMap = require(132),
+    handleEventDispatch = require(133),
+    applyEvents = require(134),
+    applyPatches = require(135);
 
 
 module.exports = Adapter;
@@ -5662,6 +6083,7 @@ function Adapter(root, containerDOMNode) {
         window = getWindow(document),
         eventManager = root.eventManager,
         events = eventManager.events,
+
         eventHandler = new EventHandler(messengerClient, document, window, true);
 
     eventHandlersById[root.id] = eventHandler;
@@ -5687,47 +6109,15 @@ function Adapter(root, containerDOMNode) {
     extend(eventManager.propNameToTopLevel, propNameToTopLevel);
 
     messengerServer.on("virt.dom.handleEventDispatch", function onHandleEventDispatch(data, callback) {
-        var childHash = root.childHash,
-            topLevelType = data.topLevelType,
-            nativeEvent = data.nativeEvent,
-            targetId = data.targetId,
-            eventType = events[topLevelType],
-            target = childHash[targetId],
-            global = eventType.global,
-            event, i, il;
+        var topLevelType = data.topLevelType;
 
-        if (target) {
-            target = target.component;
-        } else {
-            target = null;
-        }
-
-        if (global) {
-            i = -1;
-            il = global.length - 1;
-            event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-            event.currentTarget = event.componentTarget = event.currentComponentTarget = target;
-            while (i++ < il) {
-                global[i](event);
-            }
-        }
-
-        traverseAncestors(targetId, function traverseAncestor(currentTargetId) {
-            if (eventType[currentTargetId]) {
-                event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-                event.currentTarget = getNodeById(currentTargetId);
-                event.componentTarget = target;
-                event.currentComponentTarget = childHash[currentTargetId].component;
-                eventType[currentTargetId](event);
-                return event.returnValue;
-            } else {
-                return true;
-            }
-        });
-
-        if (event && event.isPersistent !== true) {
-            event.destroy();
-        }
+        handleEventDispatch(
+            root.childHash,
+            events,
+            topLevelType,
+            data.targetId,
+            eventClassMap[topLevelType].getPooled(data.nativeEvent, eventHandler)
+        );
 
         callback();
     });
@@ -5760,8 +6150,8 @@ function(require, exports, module, undefined, global) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/utils/getRootNodeId.js */
 
-var getRootNodeInContainer = require(172),
-    getNodeId = require(171);
+var getRootNodeInContainer = require(187),
+    getNodeId = require(186);
 
 
 module.exports = getRootNodeId;
@@ -6025,14 +6415,15 @@ function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/EventHandler.js */
 
 var has = require(22),
-    eventListener = require(125),
-    consts = require(105),
-    getWindowWidth = require(126),
-    getWindowHeight = require(127),
-    getEventTarget = require(128),
-    getNodeAttributeId = require(129),
-    nativeEventToJSON = require(130),
-    isEventSupported = require(131);
+    eventListener = require(136),
+    consts = require(113),
+    getWindowWidth = require(137),
+    getWindowHeight = require(138),
+    getEventTarget = require(139),
+    getNodeAttributeId = require(140),
+    nativeEventToJSON = require(141),
+    isEventSupported = require(142),
+    TapPlugin = require(143);
 
 
 var topLevelTypes = consts.topLevelTypes,
@@ -6058,6 +6449,9 @@ function EventHandler(messenger, document, window, isClient) {
     this.messenger = messenger;
     this.isClient = !!isClient;
 
+    this.__pluginListening = {};
+    this.__pluginHash = {};
+    this.__plugins = [];
     this.__isListening = {};
     this.__listening = {};
 
@@ -6073,6 +6467,8 @@ function EventHandler(messenger, document, window, isClient) {
     }
     this.__onResize = onResize;
     eventListener.on(window, "resize orientationchange", onResize);
+
+    this.addPlugin(new TapPlugin(this));
 }
 EventHandlerPrototype = EventHandler.prototype;
 
@@ -6088,6 +6484,48 @@ EventHandlerPrototype.getDimensions = function() {
         width: getWindowWidth(window, documentElement, document),
         height: getWindowHeight(window, documentElement, document)
     };
+};
+
+EventHandlerPrototype.addPlugin = function(plugin) {
+    var plugins = this.__plugins,
+        pluginHash = this.__pluginHash,
+        events = plugin.events,
+        i = -1,
+        il = events.length - 1;
+
+    while (i++ < il) {
+        pluginHash[events[i]] = plugin;
+    }
+
+    plugins[plugins.length] = plugin;
+};
+
+EventHandlerPrototype.pluginListenTo = function(topLevelType) {
+    var plugin = this.__pluginHash[topLevelType],
+        pluginListening = this.__pluginListening,
+        dependencies, events, i, il;
+
+    if (plugin && !pluginListening[topLevelType]) {
+        dependencies = plugin.dependencies;
+        i = -1;
+        il = dependencies.length - 1;
+
+        while (i++ < il) {
+            this.nativeListenTo(dependencies[i]);
+        }
+
+        events = plugin.events;
+        i = -1;
+        il = events.length - 1;
+
+        while (i++ < il) {
+            pluginListening[events[i]] = plugin;
+        }
+
+        return true;
+    } else {
+        return false;
+    }
 };
 
 EventHandlerPrototype.clear = function() {
@@ -6110,6 +6548,12 @@ EventHandlerPrototype.clear = function() {
 };
 
 EventHandlerPrototype.listenTo = function(id, topLevelType) {
+    if (!this.pluginListenTo(topLevelType)) {
+        this.nativeListenTo(topLevelType);
+    }
+};
+
+EventHandlerPrototype.nativeListenTo = function(topLevelType) {
     var document = this.document,
         window = this.window,
         isListening = this.__isListening;
@@ -6197,16 +6641,21 @@ EventHandlerPrototype.trapCapturedEvent = function(topLevelType, type, element) 
 
 EventHandlerPrototype.dispatchEvent = function(topLevelType, nativeEvent) {
     var isClient = this.isClient,
-        viewport = this.viewport,
-        targetId = getNodeAttributeId(getEventTarget(nativeEvent, this.window));
+        targetId = getNodeAttributeId(getEventTarget(nativeEvent, this.window)),
+        plugins = this.__plugins,
+        i = -1,
+        il = plugins.length - 1;
 
     if (!isClient && targetId) {
         nativeEvent.preventDefault();
     }
 
+    while (i++ < il) {
+        plugins[i].handle(topLevelType, nativeEvent, targetId, this.viewport);
+    }
+
     this.messenger.emit("virt.dom.handleEventDispatch", {
-        currentScrollLeft: viewport.currentScrollLeft,
-        currentScrollTop: viewport.currentScrollTop,
+        viewport: this.viewport,
         topLevelType: topLevelType,
         nativeEvent: isClient ? nativeEvent : nativeEventToJSON(nativeEvent),
         targetId: targetId
@@ -6218,21 +6667,33 @@ EventHandlerPrototype.dispatchEvent = function(topLevelType, nativeEvent) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/eventClassMap.js */
 
-var SyntheticClipboardEvent = require(135),
-    SyntheticCompositionEvent = require(136),
-    SyntheticDragEvent = require(137),
-    SyntheticEvent = require(138),
-    SyntheticFocusEvent = require(139),
-    SyntheticInputEvent = require(140),
-    SyntheticKeyboardEvent = require(141),
-    SyntheticMouseEvent = require(142),
-    SyntheticTouchEvent = require(143),
-    SyntheticUIEvent = require(144),
-    SyntheticWheelEvent = require(145);
+var SyntheticAnimationEvent = require(151),
+    SyntheticTransitionEvent = require(152),
+    SyntheticClipboardEvent = require(153),
+    SyntheticCompositionEvent = require(154),
+    SyntheticDragEvent = require(155),
+    SyntheticEvent = require(149),
+    SyntheticFocusEvent = require(156),
+    SyntheticInputEvent = require(157),
+    SyntheticKeyboardEvent = require(158),
+    SyntheticMouseEvent = require(159),
+    SyntheticTouchEvent = require(160),
+    SyntheticUIEvent = require(147),
+    SyntheticWheelEvent = require(161);
 
 
 module.exports = {
+    topAbort: SyntheticEvent,
+
+    topAnimationEnd: SyntheticAnimationEvent,
+    topAnimationIteration: SyntheticAnimationEvent,
+    topAnimationStart: SyntheticAnimationEvent,
+
     topBlur: SyntheticFocusEvent,
+
+    topCanPlay: SyntheticEvent,
+    topCanPlayThrough: SyntheticEvent,
+
     topChange: SyntheticInputEvent,
     topClick: SyntheticMouseEvent,
 
@@ -6256,52 +6717,128 @@ module.exports = {
     topDragStart: SyntheticDragEvent,
     topDrop: SyntheticDragEvent,
 
-    topError: SyntheticUIEvent,
+    topDurationChange: SyntheticEvent,
+    topEmptied: SyntheticEvent,
+    topEncrypted: SyntheticEvent,
+    topError: SyntheticEvent,
     topFocus: SyntheticFocusEvent,
     topInput: SyntheticInputEvent,
+    topInvalid: SyntheticEvent,
 
     topKeyDown: SyntheticKeyboardEvent,
     topKeyPress: SyntheticKeyboardEvent,
+
     topKeyUp: SyntheticKeyboardEvent,
 
     topLoad: SyntheticUIEvent,
+    topLoadStart: SyntheticEvent,
+    topLoadedData: SyntheticEvent,
+    topLoadedMetadata: SyntheticEvent,
 
     topMouseDown: SyntheticMouseEvent,
+    topMouseEnter: SyntheticMouseEvent,
     topMouseMove: SyntheticMouseEvent,
     topMouseOut: SyntheticMouseEvent,
     topMouseOver: SyntheticMouseEvent,
-    topMouseEnter: SyntheticMouseEvent,
     topMouseUp: SyntheticMouseEvent,
 
     topOrientationChange: SyntheticEvent,
 
     topPaste: SyntheticClipboardEvent,
+
+    topPause: SyntheticEvent,
+    topPlay: SyntheticEvent,
+    topPlaying: SyntheticEvent,
+    topProgress: SyntheticEvent,
+
+    topRateChange: SyntheticEvent,
     topReset: SyntheticEvent,
     topResize: SyntheticUIEvent,
+
     topScroll: SyntheticUIEvent,
+
+    topSeeked: SyntheticEvent,
+    topSeeking: SyntheticEvent,
 
     topSelectionChange: SyntheticEvent,
 
+    topStalled: SyntheticEvent,
+
     topSubmit: SyntheticEvent,
+    topSuspend: SyntheticEvent,
 
     topTextInput: SyntheticInputEvent,
+
+    topTimeUpdate: SyntheticEvent,
 
     topTouchCancel: SyntheticTouchEvent,
     topTouchEnd: SyntheticTouchEvent,
     topTouchMove: SyntheticTouchEvent,
     topTouchStart: SyntheticTouchEvent,
+    topTouchTap: SyntheticUIEvent,
 
-    topWheel: SyntheticWheelEvent,
+    topTransitionEnd: SyntheticTransitionEvent,
 
-    topRateChange: SyntheticEvent,
-    topSeeked: SyntheticEvent,
-    topSeeking: SyntheticEvent,
-    topStalled: SyntheticEvent,
-    topSuspend: SyntheticEvent,
-    topTimeUpdate: SyntheticEvent,
     topVolumeChange: SyntheticEvent,
-    topWaiting: SyntheticEvent
+    topWaiting: SyntheticEvent,
+
+    topWheel: SyntheticWheelEvent
 };
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/handleEventDispatch.js */
+
+var virt = require(1),
+    getNodeById = require(104);
+
+
+var traverseAncestors = virt.traverseAncestors;
+
+
+module.exports = handleEventDispatch;
+
+
+function handleEventDispatch(childHash, events, topLevelType, targetId, event) {
+    var target = childHash[targetId],
+        eventType = events[topLevelType],
+        global, i, il;
+
+    if (eventType) {
+        global = eventType.global;
+
+        if (target) {
+            target = target.component;
+        } else {
+            target = null;
+        }
+        if (global) {
+            i = -1;
+            il = global.length - 1;
+            event.currentTarget = event.componentTarget = event.currentComponentTarget = target;
+            while (i++ < il) {
+                global[i](event);
+            }
+        }
+
+        traverseAncestors(targetId, function traverseAncestor(currentTargetId) {
+            if (eventType[currentTargetId]) {
+                event.currentTarget = getNodeById(currentTargetId);
+                event.componentTarget = target;
+                event.currentComponentTarget = childHash[currentTargetId].component;
+                eventType[currentTargetId](event);
+                return event.returnValue;
+            } else {
+                return true;
+            }
+        });
+
+        if (event && event.isPersistent !== true) {
+            event.destroy();
+        }
+    }
+}
 
 
 },
@@ -6336,8 +6873,8 @@ function applyEvents(events, eventHandler) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/applyPatches.js */
 
-var getNodeById = require(103),
-    applyPatch = require(164);
+var getNodeById = require(104),
+    applyPatch = require(180);
 
 
 module.exports = applyPatches;
@@ -6370,8 +6907,8 @@ function(require, exports, module, undefined, global) {
 var process = require(56);
 var isObject = require(30),
     isFunction = require(16),
-    environment = require(98),
-    eventTable = require(132);
+    environment = require(99),
+    eventTable = require(144);
 
 
 var eventListener = module.exports,
@@ -6571,7 +7108,7 @@ function(require, exports, module, undefined, global) {
 var indexOf = require(54),
     isNode = require(101),
     isFunction = require(16),
-    ignoreNativeEventProp = require(133);
+    ignoreNativeEventProp = require(145);
 
 
 module.exports = nativeEventToJSON;
@@ -6600,8 +7137,8 @@ function(require, exports, module, undefined, global) {
 var isFunction = require(16),
     isNullOrUndefined = require(20),
     has = require(22),
-    supports = require(134),
-    environment = require(98);
+    supports = require(98),
+    environment = require(99);
 
 
 var document = environment.document,
@@ -6642,10 +7179,170 @@ function isEventSupported(eventNameSuffix, capture) {
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/plugins/TapPlugin.js */
+
+var now = require(146),
+    indexOf = require(54),
+    SyntheticUIEvent = require(147),
+    consts = require(113);
+
+
+var topLevelTypes = consts.topLevelTypes,
+
+    xaxis = {
+        page: "pageX",
+        client: "clientX",
+        envScroll: "currentPageScrollLeft"
+    },
+    yaxis = {
+        page: "pageY",
+        client: "clientY",
+        envScroll: "currentPageScrollTop"
+    },
+
+    touchEvents = [
+        topLevelTypes.topTouchStart,
+        topLevelTypes.topTouchCancel,
+        topLevelTypes.topTouchEnd,
+        topLevelTypes.topTouchMove
+    ],
+
+    TapPluginPrototype;
+
+
+module.exports = TapPlugin;
+
+
+function TapPlugin(eventHandler) {
+
+    this.eventHandler = eventHandler;
+
+    this.usedTouch = false;
+    this.usedTouchTime = 0;
+
+    this.tapMoveThreshold = 10;
+    this.TOUCH_DELAY = 1000;
+
+    this.startCoords = {
+        x: null,
+        y: null
+    };
+}
+TapPluginPrototype = TapPlugin.prototype;
+
+TapPluginPrototype.events = [
+    topLevelTypes.topTouchTap
+];
+
+TapPluginPrototype.dependencies = [
+    topLevelTypes.topMouseDown,
+    topLevelTypes.topMouseMove,
+    topLevelTypes.topMouseUp
+].concat(touchEvents);
+
+TapPluginPrototype.handle = function(topLevelType, nativeEvent, targetId) {
+    var startCoords, eventHandler, viewport, event;
+
+    if (!isStartish(topLevelType) && !isEndish(topLevelType)) {
+        return null;
+    } else {
+        if (indexOf(touchEvents, topLevelType) !== -1) {
+            this.usedTouch = true;
+            this.usedTouchTime = now();
+        } else {
+            if (this.usedTouch && (now() - this.usedTouchTime < this.TOUCH_DELAY)) {
+                return null;
+            }
+        }
+
+        startCoords = this.startCoords;
+        eventHandler = this.eventHandler;
+        viewport = eventHandler.viewport;
+
+        if (
+            isEndish(topLevelType) &&
+            getDistance(startCoords, nativeEvent, viewport) < this.tapMoveThreshold
+        ) {
+            event = SyntheticUIEvent.getPooled(nativeEvent, eventHandler);
+        }
+
+        if (isStartish(topLevelType)) {
+            startCoords.x = getAxisCoordOfEvent(xaxis, nativeEvent, viewport);
+            startCoords.y = getAxisCoordOfEvent(yaxis, nativeEvent, viewport);
+        } else if (isEndish(topLevelType)) {
+            startCoords.x = 0;
+            startCoords.y = 0;
+        }
+
+        if (event) {
+            eventHandler.messenger.emit("virt.dom.handleEventDispatch", {
+                viewport: viewport,
+                topLevelType: topLevelTypes.topTouchTap,
+                nativeEvent: event,
+                targetId: targetId
+            });
+        }
+    }
+};
+
+function getAxisCoordOfEvent(axis, nativeEvent, viewport) {
+    var singleTouch = extractSingleTouch(nativeEvent);
+
+    if (singleTouch) {
+        return singleTouch[axis.page];
+    } else {
+        return (
+            axis.page in nativeEvent ?
+            nativeEvent[axis.page] :
+            nativeEvent[axis.client] + viewport[axis.envScroll]
+        );
+    }
+}
+
+function getDistance(coords, nativeEvent, viewport) {
+    var pageX = getAxisCoordOfEvent(xaxis, nativeEvent, viewport),
+        pageY = getAxisCoordOfEvent(yaxis, nativeEvent, viewport);
+
+    return Math.pow(
+        Math.pow(pageX - coords.x, 2) + Math.pow(pageY - coords.y, 2),
+        0.5
+    );
+}
+
+function extractSingleTouch(nativeEvent) {
+    var touches = nativeEvent.touches,
+        changedTouches = nativeEvent.changedTouches,
+        hasTouches = touches && touches.length > 0,
+        hasChangedTouches = changedTouches && changedTouches.length > 0;
+
+    return (!hasTouches && hasChangedTouches ? changedTouches[0] :
+        hasTouches ? touches[0] :
+        nativeEvent
+    );
+}
+
+function isStartish(topLevelType) {
+    return (
+        topLevelType === topLevelTypes.topMouseDown ||
+        topLevelType === topLevelTypes.topTouchStart
+    );
+}
+
+function isEndish(topLevelType) {
+    return (
+        topLevelType === topLevelTypes.topMouseUp ||
+        topLevelType === topLevelTypes.topTouchEnd ||
+        topLevelType === topLevelTypes.topTouchCancel
+    );
+}
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/node_modules/event_listener/src/event_table.js */
 
 var isNode = require(101),
-    environment = require(98);
+    environment = require(99);
 
 
 var window = environment.window,
@@ -7066,60 +7763,79 @@ module.exports = [
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/node_modules/supports/src/index.js */
+/* ../../node_modules/virt-dom/node_modules/now/src/browser.js */
 
-var environment = require(98);
+var Date_now = Date.now || function Date_now() {
+        return (new Date()).getTime();
+    },
+    START_TIME = Date_now(),
+    performance = global.performance || {};
 
 
-var supports = module.exports;
+function now() {
+    return performance.now();
+}
+
+performance.now = (
+    performance.now ||
+    performance.webkitNow ||
+    performance.mozNow ||
+    performance.msNow ||
+    performance.oNow ||
+    function now() {
+        return Date_now() - START_TIME;
+    }
+);
+
+now.getStartTime = function getStartTime() {
+    return START_TIME;
+};
 
 
-supports.dom = !!(typeof(window) !== "undefined" && window.document && window.document.createElement);
-supports.workers = typeof(Worker) !== "undefined";
+START_TIME -= now();
 
-supports.eventListeners = supports.dom && !!environment.window.addEventListener;
-supports.attachEvents = supports.dom && !!environment.window.attachEvent;
 
-supports.viewport = supports.dom && !!environment.window.screen;
-supports.touch = supports.dom && "ontouchstart" in environment.window;
+module.exports = now;
 
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticClipboardEvent.js */
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticUIEvent.js */
 
-var getClipboardEvent = require(146),
-    SyntheticEvent = require(138);
+var getUIEvent = require(148),
+    SyntheticEvent = require(149);
 
 
 var SyntheticEventPrototype = SyntheticEvent.prototype,
-    SyntheticClipboardEventPrototype;
+    SyntheticUIEventPrototype;
 
 
-module.exports = SyntheticClipboardEvent;
+module.exports = SyntheticUIEvent;
 
 
-function SyntheticClipboardEvent(nativeEvent, eventHandler) {
+function SyntheticUIEvent(nativeEvent, eventHandler) {
 
     SyntheticEvent.call(this, nativeEvent, eventHandler);
 
-    getClipboardEvent(this, nativeEvent, eventHandler);
+    getUIEvent(this, nativeEvent, eventHandler);
 }
-SyntheticEvent.extend(SyntheticClipboardEvent);
-SyntheticClipboardEventPrototype = SyntheticClipboardEvent.prototype;
+SyntheticEvent.extend(SyntheticUIEvent);
+SyntheticUIEventPrototype = SyntheticUIEvent.prototype;
 
-SyntheticClipboardEventPrototype.destructor = function() {
+SyntheticUIEventPrototype.destructor = function() {
 
     SyntheticEventPrototype.destructor.call(this);
 
-    this.clipboardData = null;
+    this.view = null;
+    this.detail = null;
 };
 
-SyntheticClipboardEventPrototype.toJSON = function(json) {
+SyntheticUIEventPrototype.toJSON = function(json) {
 
     json = SyntheticEventPrototype.toJSON.call(this, json);
 
-    json.clipboardData = this.clipboardData;
+    json.view = null;
+    json.detail = this.detail;
 
     return json;
 };
@@ -7127,84 +7843,41 @@ SyntheticClipboardEventPrototype.toJSON = function(json) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticCompositionEvent.js */
+/* ../../node_modules/virt-dom/src/events/getters/getUIEvent.js */
 
-var getCompositionEvent = require(148),
-    SyntheticEvent = require(138);
-
-
-var SyntheticEventPrototype = SyntheticEvent.prototype,
-    SyntheticCompositionEventPrototype;
+var getWindow = require(128),
+    getEventTarget = require(139);
 
 
-module.exports = SyntheticCompositionEvent;
+module.exports = getUIEvent;
 
 
-function SyntheticCompositionEvent(nativeEvent, eventHandler) {
-
-    SyntheticEvent.call(this, nativeEvent, eventHandler);
-
-    getCompositionEvent(this, nativeEvent, eventHandler);
+function getUIEvent(obj, nativeEvent, eventHandler) {
+    obj.view = getView(nativeEvent, eventHandler);
+    obj.detail = nativeEvent.detail || 0;
 }
-SyntheticEvent.extend(SyntheticCompositionEvent);
-SyntheticCompositionEventPrototype = SyntheticCompositionEvent.prototype;
 
-SyntheticCompositionEventPrototype.destructor = function() {
+function getView(nativeEvent, eventHandler) {
+    var target, document;
 
-    SyntheticEventPrototype.destructor.call(this);
+    if (nativeEvent.view) {
+        return nativeEvent.view;
+    } else {
+        target = getEventTarget(nativeEvent, eventHandler.window);
 
-    this.data = null;
-};
+        if (target != null && target.window === target) {
+            return target;
+        } else {
+            document = target.ownerDocument;
 
-SyntheticCompositionEventPrototype.toJSON = function(json) {
-
-    json = SyntheticEventPrototype.toJSON.call(this, json);
-
-    json.data = this.data;
-
-    return json;
-};
-
-
-},
-function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticDragEvent.js */
-
-var getDragEvent = require(149),
-    SyntheticMouseEvent = require(142);
-
-
-var SyntheticMouseEventPrototype = SyntheticMouseEvent.prototype,
-    SyntheticDragEventPrototype;
-
-
-module.exports = SyntheticDragEvent;
-
-
-function SyntheticDragEvent(nativeEvent, eventHandler) {
-
-    SyntheticMouseEvent.call(this, nativeEvent, eventHandler);
-
-    getDragEvent(this, nativeEvent, eventHandler);
+            if (document) {
+                return getWindow(document);
+            } else {
+                return eventHandler.window;
+            }
+        }
+    }
 }
-SyntheticMouseEvent.extend(SyntheticDragEvent);
-SyntheticDragEventPrototype = SyntheticDragEvent.prototype;
-
-SyntheticDragEventPrototype.destructor = function() {
-
-    SyntheticMouseEventPrototype.destructor.call(this);
-
-    this.dataTransfer = null;
-};
-
-SyntheticDragEventPrototype.toJSON = function(json) {
-
-    json = SyntheticMouseEventPrototype.toJSON.call(this, json);
-
-    json.dataTransfer = this.dataTransfer;
-
-    return json;
-};
 
 
 },
@@ -7213,8 +7886,8 @@ function(require, exports, module, undefined, global) {
 
 var inherits = require(62),
     createPool = require(41),
-    nativeEventToJSON = require(130),
-    getEvent = require(147);
+    nativeEventToJSON = require(141),
+    getEvent = require(150);
 
 
 var SyntheticEventPrototype;
@@ -7310,10 +7983,248 @@ SyntheticEventPrototype.toJSON = function(json) {
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/getters/getEvent.js */
+
+var getEventTarget = require(139);
+
+
+module.exports = getEvent;
+
+
+function getEvent(obj, nativeEvent, eventHandler) {
+    obj.nativeEvent = nativeEvent;
+    obj.type = nativeEvent.type;
+    obj.target = getEventTarget(nativeEvent, eventHandler.window);
+    obj.currentTarget = nativeEvent.currentTarget;
+    obj.eventPhase = nativeEvent.eventPhase;
+    obj.bubbles = nativeEvent.bubbles;
+    obj.cancelable = nativeEvent.cancelable;
+    obj.timeStamp = nativeEvent.timeStamp;
+    obj.defaultPrevented = (
+        nativeEvent.defaultPrevented != null ? nativeEvent.defaultPrevented : nativeEvent.returnValue === false
+    );
+    obj.propagationStopped = false;
+    obj.isTrusted = nativeEvent.isTrusted;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticAnimationEvent.js */
+
+var getAnimationEvent = require(162),
+    SyntheticEvent = require(149);
+
+
+var SyntheticEventPrototype = SyntheticEvent.prototype,
+    SyntheticAnimationEventPrototype;
+
+
+module.exports = SyntheticAnimationEvent;
+
+
+function SyntheticAnimationEvent(nativeEvent, eventHandler) {
+
+    SyntheticEvent.call(this, nativeEvent, eventHandler);
+
+    getAnimationEvent(this, nativeEvent);
+}
+SyntheticEvent.extend(SyntheticAnimationEvent);
+SyntheticAnimationEventPrototype = SyntheticAnimationEvent.prototype;
+
+SyntheticAnimationEventPrototype.destructor = function() {
+
+    SyntheticEventPrototype.destructor.call(this);
+
+    this.animationName = null;
+    this.elapsedTime = null;
+    this.pseudoElement = null;
+};
+
+SyntheticAnimationEventPrototype.toJSON = function(json) {
+    json = SyntheticEventPrototype.toJSON.call(this, json);
+
+    json.animationName = this.animationName;
+    json.elapsedTime = this.elapsedTime;
+    json.pseudoElement = this.pseudoElement;
+
+    return json;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticTransitionEvent.js */
+
+var getTransitionEvent = require(163),
+    SyntheticEvent = require(149);
+
+
+var SyntheticEventPrototype = SyntheticEvent.prototype,
+    SyntheticTransitionEventPrototype;
+
+
+module.exports = SyntheticTransitionEvent;
+
+
+function SyntheticTransitionEvent(nativeEvent, eventHandler) {
+
+    SyntheticEvent.call(this, nativeEvent, eventHandler);
+
+    getTransitionEvent(this, nativeEvent);
+}
+SyntheticEvent.extend(SyntheticTransitionEvent);
+SyntheticTransitionEventPrototype = SyntheticTransitionEvent.prototype;
+
+SyntheticTransitionEventPrototype.destructor = function() {
+
+    SyntheticEventPrototype.destructor.call(this);
+
+    this.propertyName = null;
+    this.elapsedTime = null;
+    this.pseudoElement = null;
+};
+
+SyntheticTransitionEventPrototype.toJSON = function(json) {
+    json = SyntheticEventPrototype.toJSON.call(this, json);
+
+    json.propertyName = this.propertyName;
+    json.elapsedTime = this.elapsedTime;
+    json.pseudoElement = this.pseudoElement;
+
+    return json;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticClipboardEvent.js */
+
+var getClipboardEvent = require(164),
+    SyntheticEvent = require(149);
+
+
+var SyntheticEventPrototype = SyntheticEvent.prototype,
+    SyntheticClipboardEventPrototype;
+
+
+module.exports = SyntheticClipboardEvent;
+
+
+function SyntheticClipboardEvent(nativeEvent, eventHandler) {
+
+    SyntheticEvent.call(this, nativeEvent, eventHandler);
+
+    getClipboardEvent(this, nativeEvent, eventHandler);
+}
+SyntheticEvent.extend(SyntheticClipboardEvent);
+SyntheticClipboardEventPrototype = SyntheticClipboardEvent.prototype;
+
+SyntheticClipboardEventPrototype.destructor = function() {
+
+    SyntheticEventPrototype.destructor.call(this);
+
+    this.clipboardData = null;
+};
+
+SyntheticClipboardEventPrototype.toJSON = function(json) {
+
+    json = SyntheticEventPrototype.toJSON.call(this, json);
+
+    json.clipboardData = this.clipboardData;
+
+    return json;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticCompositionEvent.js */
+
+var getCompositionEvent = require(165),
+    SyntheticEvent = require(149);
+
+
+var SyntheticEventPrototype = SyntheticEvent.prototype,
+    SyntheticCompositionEventPrototype;
+
+
+module.exports = SyntheticCompositionEvent;
+
+
+function SyntheticCompositionEvent(nativeEvent, eventHandler) {
+
+    SyntheticEvent.call(this, nativeEvent, eventHandler);
+
+    getCompositionEvent(this, nativeEvent, eventHandler);
+}
+SyntheticEvent.extend(SyntheticCompositionEvent);
+SyntheticCompositionEventPrototype = SyntheticCompositionEvent.prototype;
+
+SyntheticCompositionEventPrototype.destructor = function() {
+
+    SyntheticEventPrototype.destructor.call(this);
+
+    this.data = null;
+};
+
+SyntheticCompositionEventPrototype.toJSON = function(json) {
+
+    json = SyntheticEventPrototype.toJSON.call(this, json);
+
+    json.data = this.data;
+
+    return json;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticDragEvent.js */
+
+var getDragEvent = require(166),
+    SyntheticMouseEvent = require(159);
+
+
+var SyntheticMouseEventPrototype = SyntheticMouseEvent.prototype,
+    SyntheticDragEventPrototype;
+
+
+module.exports = SyntheticDragEvent;
+
+
+function SyntheticDragEvent(nativeEvent, eventHandler) {
+
+    SyntheticMouseEvent.call(this, nativeEvent, eventHandler);
+
+    getDragEvent(this, nativeEvent, eventHandler);
+}
+SyntheticMouseEvent.extend(SyntheticDragEvent);
+SyntheticDragEventPrototype = SyntheticDragEvent.prototype;
+
+SyntheticDragEventPrototype.destructor = function() {
+
+    SyntheticMouseEventPrototype.destructor.call(this);
+
+    this.dataTransfer = null;
+};
+
+SyntheticDragEventPrototype.toJSON = function(json) {
+
+    json = SyntheticMouseEventPrototype.toJSON.call(this, json);
+
+    json.dataTransfer = this.dataTransfer;
+
+    return json;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticFocusEvent.js */
 
-var getFocusEvent = require(155),
-    SyntheticUIEvent = require(144);
+var getFocusEvent = require(171),
+    SyntheticUIEvent = require(147);
 
 
 var SyntheticUIEventPrototype = SyntheticUIEvent.prototype,
@@ -7353,8 +8264,8 @@ SyntheticFocusEventPrototype.toJSON = function(json) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticInputEvent.js */
 
-var getInputEvent = require(156),
-    SyntheticEvent = require(138);
+var getInputEvent = require(172),
+    SyntheticEvent = require(149);
 
 
 var SyntheticEventPrototype = SyntheticEvent.prototype,
@@ -7394,8 +8305,8 @@ SyntheticInputEventPrototype.toJSON = function(json) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticKeyboardEvent.js */
 
-var getKeyboardEvent = require(157),
-    SyntheticUIEvent = require(144);
+var getKeyboardEvent = require(173),
+    SyntheticUIEvent = require(147);
 
 
 var SyntheticUIEventPrototype = SyntheticUIEvent.prototype,
@@ -7414,7 +8325,7 @@ function SynthetiKeyboardEvent(nativeEvent, eventHandler) {
 SyntheticUIEvent.extend(SynthetiKeyboardEvent);
 SynthetiKeyboardEventPrototype = SynthetiKeyboardEvent.prototype;
 
-SynthetiKeyboardEventPrototype.getModifierState = require(151);
+SynthetiKeyboardEventPrototype.getModifierState = require(168);
 
 SynthetiKeyboardEventPrototype.destructor = function() {
 
@@ -7457,8 +8368,8 @@ SynthetiKeyboardEventPrototype.toJSON = function(json) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticMouseEvent.js */
 
-var getMouseEvent = require(150),
-    SyntheticUIEvent = require(144);
+var getMouseEvent = require(167),
+    SyntheticUIEvent = require(147);
 
 
 var SyntheticUIEventPrototype = SyntheticUIEvent.prototype,
@@ -7477,7 +8388,7 @@ function SyntheticMouseEvent(nativeEvent, eventHandler) {
 SyntheticUIEvent.extend(SyntheticMouseEvent);
 SyntheticMouseEventPrototype = SyntheticMouseEvent.prototype;
 
-SyntheticMouseEventPrototype.getModifierState = require(151);
+SyntheticMouseEventPrototype.getModifierState = require(168);
 
 SyntheticMouseEventPrototype.destructor = function() {
 
@@ -7524,9 +8435,9 @@ SyntheticMouseEventPrototype.toJSON = function(json) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticTouchEvent.js */
 
-var getTouchEvent = require(160),
-    SyntheticUIEvent = require(144),
-    SyntheticTouch = require(161);
+var getTouchEvent = require(176),
+    SyntheticUIEvent = require(147),
+    SyntheticTouch = require(177);
 
 
 var SyntheticUIEventPrototype = SyntheticUIEvent.prototype,
@@ -7549,7 +8460,7 @@ function SyntheticTouchEvent(nativeEvent, eventHandler) {
 SyntheticUIEvent.extend(SyntheticTouchEvent);
 SyntheticTouchEventPrototype = SyntheticTouchEvent.prototype;
 
-SyntheticTouchEventPrototype.getModifierState = require(151);
+SyntheticTouchEventPrototype.getModifierState = require(168);
 
 SyntheticTouchEventPrototype.destructor = function() {
 
@@ -7605,53 +8516,10 @@ function destroyTouches(touches) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticUIEvent.js */
-
-var getUIEvent = require(154),
-    SyntheticEvent = require(138);
-
-
-var SyntheticEventPrototype = SyntheticEvent.prototype,
-    SyntheticUIEventPrototype;
-
-
-module.exports = SyntheticUIEvent;
-
-
-function SyntheticUIEvent(nativeEvent, eventHandler) {
-
-    SyntheticEvent.call(this, nativeEvent, eventHandler);
-
-    getUIEvent(this, nativeEvent, eventHandler);
-}
-SyntheticEvent.extend(SyntheticUIEvent);
-SyntheticUIEventPrototype = SyntheticUIEvent.prototype;
-
-SyntheticUIEventPrototype.destructor = function() {
-
-    SyntheticEventPrototype.destructor.call(this);
-
-    this.view = null;
-    this.detail = null;
-};
-
-SyntheticUIEventPrototype.toJSON = function(json) {
-
-    json = SyntheticEventPrototype.toJSON.call(this, json);
-
-    json.view = null;
-    json.detail = this.detail;
-
-    return json;
-};
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticWheelEvent.js */
 
-var getWheelEvent = require(163),
-    SyntheticMouseEvent = require(142);
+var getWheelEvent = require(179),
+    SyntheticMouseEvent = require(159);
 
 
 var SyntheticMouseEventPrototype = SyntheticMouseEvent.prototype,
@@ -7695,6 +8563,34 @@ SyntheticWheelEventPrototype.toJSON = function(json) {
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/getters/getAnimationEvent.js */
+
+module.exports = getAnimationEvent;
+
+
+function getAnimationEvent(obj, nativeEvent) {
+    obj.animationName = nativeEvent.animationName;
+    obj.elapsedTime = nativeEvent.elapsedTime;
+    obj.pseudoElement = nativeEvent.pseudoElement;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/virt-dom/src/events/getters/getTransitionEvent.js */
+
+module.exports = getTransitionEvent;
+
+
+function getTransitionEvent(obj, nativeEvent) {
+    obj.propertyName = nativeEvent.propertyName;
+    obj.elapsedTime = nativeEvent.elapsedTime;
+    obj.pseudoElement = nativeEvent.pseudoElement;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/getters/getClipboardEvent.js */
 
 module.exports = getClipboardEvent;
@@ -7706,33 +8602,6 @@ function getClipboardEvent(obj, nativeEvent, eventHandler) {
 
 function getClipboardData(nativeEvent, window) {
     return nativeEvent.clipboardData != null ? nativeEvent.clipboardData : window.clipboardData;
-}
-
-
-},
-function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/getters/getEvent.js */
-
-var getEventTarget = require(128);
-
-
-module.exports = getEvent;
-
-
-function getEvent(obj, nativeEvent, eventHandler) {
-    obj.nativeEvent = nativeEvent;
-    obj.type = nativeEvent.type;
-    obj.target = getEventTarget(nativeEvent, eventHandler.window);
-    obj.currentTarget = nativeEvent.currentTarget;
-    obj.eventPhase = nativeEvent.eventPhase;
-    obj.bubbles = nativeEvent.bubbles;
-    obj.cancelable = nativeEvent.cancelable;
-    obj.timeStamp = nativeEvent.timeStamp;
-    obj.defaultPrevented = (
-        nativeEvent.defaultPrevented != null ? nativeEvent.defaultPrevented : nativeEvent.returnValue === false
-    );
-    obj.propagationStopped = false;
-    obj.isTrusted = nativeEvent.isTrusted;
 }
 
 
@@ -7764,8 +8633,8 @@ function getDragEvent(obj, nativeEvent) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/getters/getMouseEvent.js */
 
-var getPageX = require(152),
-    getPageY = require(153);
+var getPageX = require(169),
+    getPageY = require(170);
 
 
 module.exports = getMouseEvent;
@@ -7858,45 +8727,6 @@ function getPageY(nativeEvent, viewport) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/getters/getUIEvent.js */
-
-var getWindow = require(118),
-    getEventTarget = require(128);
-
-
-module.exports = getUIEvent;
-
-
-function getUIEvent(obj, nativeEvent, eventHandler) {
-    obj.view = getView(nativeEvent, eventHandler);
-    obj.detail = nativeEvent.detail || 0;
-}
-
-function getView(nativeEvent, eventHandler) {
-    var target, document;
-
-    if (nativeEvent.view) {
-        return nativeEvent.view;
-    } else {
-        target = getEventTarget(nativeEvent, eventHandler.window);
-
-        if (target != null && target.window === target) {
-            return target;
-        } else {
-            document = target.ownerDocument;
-
-            if (document) {
-                return getWindow(document);
-            } else {
-                return eventHandler.window;
-            }
-        }
-    }
-}
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/getters/getFocusEvent.js */
 
 module.exports = getFocusEvent;
@@ -7923,8 +8753,8 @@ function getInputEvent(obj, nativeEvent) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/getters/getKeyboardEvent.js */
 
-var getEventKey = require(158),
-    getEventCharCode = require(159);
+var getEventKey = require(174),
+    getEventCharCode = require(175);
 
 
 module.exports = getKeyboardEvent;
@@ -7965,9 +8795,9 @@ function getWhich(nativeEvent) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/getters/getEventKey.js */
+/* ../../node_modules/virt-dom/node_modules/get_event_key/src/index.js */
 
-var getEventCharCode = require(159);
+var getEventCharCode = require(175);
 
 
 var normalizeKey, translateToKey;
@@ -8057,7 +8887,7 @@ function getEventKey(nativeEvent) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/src/events/getters/getEventCharCode.js */
+/* ../../node_modules/virt-dom/node_modules/get_event_char_code/src/index.js */
 
 module.exports = getEventCharCode;
 
@@ -8103,8 +8933,8 @@ function getTouchEvent(obj, nativeEvent) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/events/syntheticEvents/SyntheticTouch.js */
 
-var getTouch = require(162),
-    nativeEventToJSON = require(130),
+var getTouch = require(178),
+    nativeEventToJSON = require(141),
     createPool = require(41);
 
 
@@ -8278,15 +9108,15 @@ var virt = require(1),
     isNull = require(26),
     isUndefined = require(27),
     isNullOrUndefined = require(20),
-    createDOMElement = require(165),
+    createDOMElement = require(181),
     renderMarkup = require(82),
     renderString = require(69),
     renderChildrenString = require(84),
-    addDOMNodes = require(166),
-    removeDOMNode = require(167),
-    removeDOMNodes = require(168),
-    getNodeById = require(103),
-    applyProperties = require(169);
+    addDOMNodes = require(182),
+    removeDOMNode = require(183),
+    removeDOMNodes = require(184),
+    getNodeById = require(104),
+    applyProperties = require(185);
 
 
 var consts = virt.consts;
@@ -8434,9 +9264,9 @@ var virt = require(1),
     isString = require(18),
 
     DOM_ID_NAME = require(83),
-    nodeCache = require(104),
+    nodeCache = require(105),
 
-    applyProperties = require(169);
+    applyProperties = require(185);
 
 
 var View = virt.View,
@@ -8470,8 +9300,8 @@ function createDOMElement(view, id, document) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/utils/addDOMNodes.js */
 
-var isElement = require(170),
-    getNodeId = require(171);
+var isElement = require(97),
+    getNodeId = require(186);
 
 
 module.exports = addDOMNodes;
@@ -8498,15 +9328,15 @@ function addDOMNode(node) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/utils/removeDOMNode.js */
 
-var isElement = require(170),
-    nodeCache = require(104),
-    getNodeAttributeId = require(129);
+var isElement = require(97),
+    nodeCache = require(105),
+    getNodeAttributeId = require(140);
 
 
 module.exports = removeDOMNode;
 
 
-var removeDOMNodes = require(168);
+var removeDOMNodes = require(184);
 
 
 function removeDOMNode(node) {
@@ -8524,7 +9354,7 @@ function(require, exports, module, undefined, global) {
 module.exports = removeDOMNodes;
 
 
-var removeDOMNode = require(167);
+var removeDOMNode = require(183);
 
 
 function removeDOMNodes(nodes) {
@@ -8650,26 +9480,11 @@ function applyObject(node, previous, propKey, propValues) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/virt-dom/node_modules/is_element/src/index.js */
-
-var isNode = require(101);
-
-
-module.exports = isElement;
-
-
-function isElement(value) {
-    return isNode(value) && value.nodeType === 1;
-}
-
-
-},
-function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/utils/getNodeId.js */
 
 var has = require(22),
-    nodeCache = require(104),
-    getNodeAttributeId = require(129);
+    nodeCache = require(105),
+    getNodeAttributeId = require(140);
 
 
 module.exports = getNodeId;
@@ -8726,7 +9541,7 @@ function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/node_modules/messenger_worker_adapter/src/index.js */
 
 var isString = require(18),
-    environment = require(98);
+    environment = require(99);
 
 
 var MessengerWorkerAdapterPrototype,
@@ -8761,17 +9576,14 @@ MessengerWorkerAdapterPrototype.postMessage = function(data) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/worker/WorkerAdapter.js */
 
-var virt = require(1),
-    extend = require(24),
-    Messenger = require(116),
-    MessengerWorkerAdapter = require(173),
+var extend = require(24),
+    Messenger = require(126),
+    MessengerWorkerAdapter = require(188),
+    handleEventDispatch = require(133),
     nativeDOMComponents = require(70),
-    registerNativeComponents = require(119),
-    consts = require(105),
-    eventClassMap = require(122);
-
-
-var traverseAncestors = virt.traverseAncestors;
+    registerNativeComponents = require(129),
+    consts = require(113),
+    eventClassMap = require(132);
 
 
 module.exports = WorkerAdapter;
@@ -8797,49 +9609,19 @@ function WorkerAdapter(root) {
     extend(eventManager.propNameToTopLevel, consts.propNameToTopLevel);
 
     messenger.on("virt.dom.handleEventDispatch", function(data, callback) {
-        var childHash = root.childHash,
-            topLevelType = data.topLevelType,
-            nativeEvent = data.nativeEvent,
-            targetId = data.targetId,
-            eventType = events[topLevelType],
-            target = childHash[targetId],
-            global = eventType.global,
-            event, i, il;
+        var topLevelType = data.topLevelType,
+            dataViewport = data.viewport;
 
-        if (target) {
-            target = target.component;
-        } else {
-            target = null;
-        }
+        viewport.currentScrollLeft = dataViewport.currentScrollLeft;
+        viewport.currentScrollTop = dataViewport.currentScrollTop;
 
-        viewport.currentScrollLeft = data.currentScrollLeft;
-        viewport.currentScrollTop = data.currentScrollTop;
-
-        if (global) {
-            i = -1;
-            il = global.length - 1;
-            event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-            event.currentTarget = event.componentTarget = event.currentComponentTarget = target;
-            while (i++ < il) {
-                global[i](event);
-            }
-        }
-
-        traverseAncestors(targetId, function(currentTargetId) {
-            if (eventType[currentTargetId]) {
-                event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-                event.target = event.componentTarget = target;
-                event.currentTarget = event.currentComponentTarget = childHash[currentTargetId].component;
-                eventType[currentTargetId](event);
-                return event.returnValue;
-            } else {
-                return true;
-            }
-        });
-
-        if (event && event.isPersistent !== true) {
-            event.destroy();
-        }
+        handleEventDispatch(
+            root.childHash,
+            events,
+            topLevelType,
+            data.targetId,
+            eventClassMap[topLevelType].getPooled(data.nativeEvent, eventHandler)
+        );
 
         callback();
     });
@@ -8889,17 +9671,14 @@ function defaultSendMessage(socket, data) {
 function(require, exports, module, undefined, global) {
 /* ../../node_modules/virt-dom/src/websocket/WebSocketAdapter.js */
 
-var virt = require(1),
-    extend = require(24),
-    Messenger = require(116),
-    MessengerWebSocketAdapter = require(175),
+var extend = require(24),
+    Messenger = require(126),
+    MessengerWebSocketAdapter = require(190),
+    handleEventDispatch = require(133),
     nativeDOMComponents = require(70),
-    registerNativeComponents = require(119),
-    consts = require(105),
-    eventClassMap = require(122);
-
-
-var traverseAncestors = virt.traverseAncestors;
+    registerNativeComponents = require(129),
+    consts = require(113),
+    eventClassMap = require(132);
 
 
 module.exports = WebSocketAdapter;
@@ -8928,49 +9707,19 @@ function WebSocketAdapter(root, socket, attachMessage, sendMessage) {
     extend(eventManager.propNameToTopLevel, consts.propNameToTopLevel);
 
     messenger.on("virt.dom.handleEventDispatch", function(data, callback) {
-        var childHash = root.childHash,
-            topLevelType = data.topLevelType,
-            nativeEvent = data.nativeEvent,
-            targetId = data.targetId,
-            eventType = events[topLevelType],
-            target = childHash[targetId],
-            global = eventType.global,
-            event, i, il;
+        var topLevelType = data.topLevelType,
+            dataViewport = data.viewport;
 
-        if (target) {
-            target = target.component;
-        } else {
-            target = null;
-        }
+        viewport.currentScrollLeft = dataViewport.currentScrollLeft;
+        viewport.currentScrollTop = dataViewport.currentScrollTop;
 
-        viewport.currentScrollLeft = data.currentScrollLeft;
-        viewport.currentScrollTop = data.currentScrollTop;
-
-        if (global) {
-            i = -1;
-            il = global.length - 1;
-            event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-            event.currentTarget = event.componentTarget = event.currentComponentTarget = target;
-            while (i++ < il) {
-                global[i](event);
-            }
-        }
-
-        traverseAncestors(targetId, function(currentTargetId) {
-            if (eventType[currentTargetId]) {
-                event = event || eventClassMap[topLevelType].getPooled(nativeEvent, eventHandler);
-                event.target = event.componentTarget = target;
-                event.currentTarget = event.currentComponentTarget = childHash[currentTargetId].component;
-                eventType[currentTargetId](event);
-                return event.returnValue;
-            } else {
-                return true;
-            }
-        });
-
-        if (event && event.isPersistent !== true) {
-            event.destroy();
-        }
+        handleEventDispatch(
+            root.childHash,
+            events,
+            topLevelType,
+            data.targetId,
+            eventClassMap[topLevelType].getPooled(data.nativeEvent, eventHandler)
+        );
 
         callback();
     });
@@ -8981,11 +9730,63 @@ function WebSocketAdapter(root, socket, attachMessage, sendMessage) {
 
 },
 function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/index.js */
+
+var arrayForEach = require(120),
+    indexOf = require(54),
+    fastSlice = require(194),
+    prefix = require(195),
+    properties = require(196),
+    transition = require(197),
+    textShadow = require(198),
+    nonPrefixProperties = require(199);
+
+
+var css = exports;
+
+
+arrayForEach(properties, function(key) {
+    if (indexOf(nonPrefixProperties, key) === -1) {
+        css[key] = function(styles, value) {
+            return prefix(styles, key, value, null, css.stopPrefix);
+        };
+    } else {
+        css[key] = function(styles, value) {
+            styles[key] = value;
+            return styles;
+        };
+    }
+});
+
+css.opacity = require(200);
+
+css.transition = function(styles) {
+    return transition(styles, fastSlice(arguments, 1));
+};
+css.textShadow = function(styles) {
+    return textShadow(styles, fastSlice(arguments, 1));
+};
+
+css.stopPrefix = false;
+css.prefixes = require(201);
+css.properties = properties;
+
+css.easing = require(202);
+css.colors = require(203);
+css.Styles = require(204);
+
+css.darken = require(205);
+css.fade = require(206);
+css.lighten = require(207);
+
+
+},
+function(require, exports, module, undefined, global) {
 /* ../../node_modules/prop_types/src/index.js */
 
-var i18n = require(178),
+var i18n = require(219),
     isArray = require(17),
-    isRegExp = require(179),
+    isRegExp = require(220),
     isNullOrUndefined = require(20),
     emptyFunction = require(35),
     isFunction = require(16),
@@ -9001,7 +9802,7 @@ i18n = i18n.create(true, true);
 
 
 if (!i18n.has("en", "prop_types.anonymous")) {
-    i18n.add("en", require(180));
+    i18n.add("en", require(221));
 }
 
 
@@ -9078,6 +9879,38 @@ propTypes.oneOf = function createOneOfCheck(expectedValues) {
             return new TypeError(
                 i18n(locale || defaultLocale, "prop_types.one_of", propName, propValue, callerName, JSON.stringify(expectedValues))
             );
+        }
+    });
+};
+
+propTypes.arrayOf = function createArrayOfCheck(checkType) {
+
+    if (!isFunction(checkType)) {
+        throw new TypeError(
+            "Invalid Function Interface for arrayOf, checkType must be a function" +
+            "Function(props: Object, propName: String, callerName: String, locale) return Error or null."
+        );
+    }
+
+    return createTypeChecker(function validateArrayOf(props, propName, callerName, locale) {
+        var error = propTypes.array(props, propName, callerName, locale),
+            propValue, i, il;
+
+        if (error) {
+            return error;
+        } else {
+            propValue = props[propName];
+            i = -1;
+            il = propValue.length - 1;
+
+            while (i++ < il) {
+                error = checkType(propValue, i, callerName + "[" + i + "]", locale);
+                if (error) {
+                    return error;
+                }
+            }
+
+            return null;
         }
     });
 };
@@ -9164,13 +9997,2739 @@ function getPreciseType(propValue) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/i18n/src/index.js */
+/* ../../node_modules/css/node_modules/fast_slice/src/index.js */
+
+var clamp = require(208),
+    isNumber = require(21);
+
+
+module.exports = fastSlice;
+
+
+function fastSlice(array, offset) {
+    var length = array.length,
+        newLength, i, il, result, j;
+
+    offset = clamp(isNumber(offset) ? offset : 0, 0, length);
+    i = offset - 1;
+    il = length - 1;
+    newLength = length - offset;
+    result = new Array(newLength);
+    j = 0;
+
+    while (i++ < il) {
+        result[j++] = array[i];
+    }
+
+    return result;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefix.js */
+
+var prefixes = require(201),
+    capitalizeString = require(103);
+
+
+module.exports = prefix;
+
+
+function prefix(styles, key, value, prefixValue, stopPrefix) {
+    var i, il, pre;
+
+    if (stopPrefix !== true) {
+        prefixValue = prefixValue === true;
+        i = -1;
+        il = prefixes.length - 1;
+
+        while (i++ < il) {
+            pre = prefixes[i];
+            styles[pre.js + capitalizeString(key)] = prefixValue ? pre.css + value : value;
+        }
+    }
+
+    styles[key] = value;
+
+    return styles;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/properties.js */
+
+module.exports = [
+    "parentRule",
+    "length",
+    "cssText",
+    "alignContent",
+    "alignItems",
+    "alignSelf",
+    "alignmentBaseline",
+    "all",
+    "animation",
+    "animationDelay",
+    "animationDirection",
+    "animationDuration",
+    "animationFillMode",
+    "animationIterationCount",
+    "animationName",
+    "animationPlayState",
+    "animationTimingFunction",
+    "backfaceVisibility",
+    "background",
+    "backgroundAttachment",
+    "backgroundBlendMode",
+    "backgroundClip",
+    "backgroundColor",
+    "backgroundImage",
+    "backgroundOrigin",
+    "backgroundPosition",
+    "backgroundPositionX",
+    "backgroundPositionY",
+    "backgroundRepeat",
+    "backgroundRepeatX",
+    "backgroundRepeatY",
+    "backgroundSize",
+    "baselineShift",
+    "border",
+    "borderBottom",
+    "borderBottomColor",
+    "borderBottomLeftRadius",
+    "borderBottomRightRadius",
+    "borderBottomStyle",
+    "borderBottomWidth",
+    "borderCollapse",
+    "borderColor",
+    "borderImage",
+    "borderImageOutset",
+    "borderImageRepeat",
+    "borderImageSlice",
+    "borderImageSource",
+    "borderImageWidth",
+    "borderLeft",
+    "borderLeftColor",
+    "borderLeftStyle",
+    "borderLeftWidth",
+    "borderRadius",
+    "borderRight",
+    "borderRightColor",
+    "borderRightStyle",
+    "borderRightWidth",
+    "borderSpacing",
+    "borderStyle",
+    "borderTop",
+    "borderTopColor",
+    "borderTopLeftRadius",
+    "borderTopRightRadius",
+    "borderTopStyle",
+    "borderTopWidth",
+    "borderWidth",
+    "bottom",
+    "boxShadow",
+    "boxSizing",
+    "bufferedRendering",
+    "captionSide",
+    "clear",
+    "clip",
+    "clipPath",
+    "clipRule",
+    "color",
+    "colorInterpolation",
+    "colorInterpolationFilters",
+    "colorRendering",
+    "content",
+    "counterIncrement",
+    "counterReset",
+    "cursor",
+    "cx",
+    "cy",
+    "direction",
+    "display",
+    "dominantBaseline",
+    "emptyCells",
+    "enableBackground",
+    "fill",
+    "fillOpacity",
+    "fillRule",
+    "filter",
+    "flex",
+    "flexBasis",
+    "flexDirection",
+    "flexFlow",
+    "flexGrow",
+    "flexShrink",
+    "flexWrap",
+    "float",
+    "floodColor",
+    "floodOpacity",
+    "font",
+    "fontFamily",
+    "fontKerning",
+    "fontSize",
+    "fontStretch",
+    "fontStyle",
+    "fontVariant",
+    "fontVariantLigatures",
+    "fontWeight",
+    "glyphOrientationHorizontal",
+    "glyphOrientationVertical",
+    "height",
+    "imageRendering",
+    "isolation",
+    "justifyContent",
+    "left",
+    "letterSpacing",
+    "lightingColor",
+    "lineHeight",
+    "listStyle",
+    "listStyleImage",
+    "listStylePosition",
+    "listStyleType",
+    "margin",
+    "marginBottom",
+    "marginLeft",
+    "marginRight",
+    "marginTop",
+    "marker",
+    "markerEnd",
+    "markerMid",
+    "markerStart",
+    "mask",
+    "maskType",
+    "maxHeight",
+    "maxWidth",
+    "maxZoom",
+    "minHeight",
+    "minWidth",
+    "minZoom",
+    "mixBlendMode",
+    "objectFit",
+    "objectPosition",
+    "opacity",
+    "order",
+    "orientation",
+    "orphans",
+    "outline",
+    "outlineColor",
+    "outlineOffset",
+    "outlineStyle",
+    "outlineWidth",
+    "overflow",
+    "overflowWrap",
+    "overflowX",
+    "overflowY",
+    "padding",
+    "paddingBottom",
+    "paddingLeft",
+    "paddingRight",
+    "paddingTop",
+    "page",
+    "pageBreakAfter",
+    "pageBreakBefore",
+    "pageBreakInside",
+    "paintOrder",
+    "perspective",
+    "perspectiveOrigin",
+    "pointerEvents",
+    "position",
+    "quotes",
+    "r",
+    "resize",
+    "right",
+    "rx",
+    "ry",
+    "shapeImageThreshold",
+    "shapeMargin",
+    "shapeOutside",
+    "shapeRendering",
+    "size",
+    "speak",
+    "src",
+    "stopColor",
+    "stopOpacity",
+    "stroke",
+    "strokeDasharray",
+    "strokeDashoffset",
+    "strokeLinecap",
+    "strokeLinejoin",
+    "strokeMiterlimit",
+    "strokeOpacity",
+    "strokeWidth",
+    "tabSize",
+    "tableLayout",
+    "textAlign",
+    "textAnchor",
+    "textDecoration",
+    "textIndent",
+    "textOverflow",
+    "textRendering",
+    "textShadow",
+    "textTransform",
+    "top",
+    "touchAction",
+    "transform",
+    "transformOrigin",
+    "transformStyle",
+    "transition",
+    "transitionDelay",
+    "transitionDuration",
+    "transitionProperty",
+    "transitionTimingFunction",
+    "unicodeBidi",
+    "unicodeRange",
+    "userZoom",
+    "userSelect",
+    "vectorEffect",
+    "verticalAlign",
+    "visibility",
+    "whiteSpace",
+    "widows",
+    "width",
+    "willChange",
+    "wordBreak",
+    "wordSpacing",
+    "wordWrap",
+    "writingMode",
+    "x",
+    "y",
+    "zIndex",
+    "zoom"
+];
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/transition.js */
+
+var prefixes = require(201),
+    prefixArray = require(212);
+
+
+module.exports = transition;
+
+
+var css = require(192);
+
+
+function transition(styles, transitions) {
+    var i, il, prefix;
+
+    if (css.stopPrefix !== true) {
+        i = -1;
+        il = prefixes.length - 1;
+
+        while (i++ < il) {
+            prefix = prefixes[i];
+            styles[prefix.js + "Transition"] = prefixArray(prefix.css, transitions).join(", ");
+        }
+    }
+
+    styles.transition = transitions.join(", ");
+
+    return styles;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/textShadow.js */
+
+var prefixes = require(201);
+
+
+module.exports = textShadow;
+
+
+var css = require(192);
+
+
+function textShadow(styles, textShadows) {
+    var i, il, prefix;
+
+    if (css.stopPrefix !== true) {
+        i = -1;
+        il = prefixes.length - 1;
+
+        while (i++ < il) {
+            prefix = prefixes[i];
+            styles[prefix.js + "TextShadow"] = textShadows.join(", ");
+        }
+    }
+
+    styles.textShadow = textShadows.join(", ");
+
+    return styles;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/nonPrefixProperties.js */
+
+module.exports = [
+    "parentRule",
+    "length",
+    "cssText",
+    "backfaceVisibility",
+    "background",
+    "backgroundAttachment",
+    "backgroundBlendMode",
+    "backgroundClip",
+    "backgroundColor",
+    "backgroundImage",
+    "backgroundOrigin",
+    "backgroundPosition",
+    "backgroundPositionX",
+    "backgroundPositionY",
+    "backgroundRepeat",
+    "backgroundRepeatX",
+    "backgroundRepeatY",
+    "baselineShift",
+    "border",
+    "borderBottom",
+    "borderBottomColor",
+    "borderBottomStyle",
+    "borderBottomWidth",
+    "borderCollapse",
+    "borderColor",
+    "borderImage",
+    "borderImageOutset",
+    "borderImageRepeat",
+    "borderImageSlice",
+    "borderImageSource",
+    "borderImageWidth",
+    "borderLeft",
+    "borderLeftColor",
+    "borderLeftStyle",
+    "borderLeftWidth",
+    "borderRight",
+    "borderRightColor",
+    "borderRightStyle",
+    "borderRightWidth",
+    "borderSpacing",
+    "borderStyle",
+    "borderTop",
+    "borderTopColor",
+    "borderTopStyle",
+    "borderTopWidth",
+    "borderWidth",
+    "bottom",
+    "bufferedRendering",
+    "captionSide",
+    "clear",
+    "clip",
+    "clipPath",
+    "clipRule",
+    "color",
+    "colorInterpolation",
+    "colorInterpolationFilters",
+    "colorRendering",
+    "content",
+    "counterIncrement",
+    "counterReset",
+    "cursor",
+    "cx",
+    "cy",
+    "direction",
+    "display",
+    "dominantBaseline",
+    "emptyCells",
+    "enableBackground",
+    "fill",
+    "fillOpacity",
+    "fillRule",
+    "filter",
+    "float",
+    "floodColor",
+    "floodOpacity",
+    "font",
+    "fontFamily",
+    "fontKerning",
+    "fontSize",
+    "fontStretch",
+    "fontStyle",
+    "fontVariant",
+    "fontVariantLigatures",
+    "fontWeight",
+    "glyphOrientationHorizontal",
+    "glyphOrientationVertical",
+    "height",
+    "imageRendering",
+    "isolation",
+    "justifyContent",
+    "left",
+    "letterSpacing",
+    "lightingColor",
+    "lineHeight",
+    "listStyle",
+    "listStyleImage",
+    "listStylePosition",
+    "listStyleType",
+    "margin",
+    "marginBottom",
+    "marginLeft",
+    "marginRight",
+    "marginTop",
+    "marker",
+    "markerEnd",
+    "markerMid",
+    "markerStart",
+    "mask",
+    "maskType",
+    "maxHeight",
+    "maxWidth",
+    "maxZoom",
+    "minHeight",
+    "minWidth",
+    "minZoom",
+    "mixBlendMode",
+    "objectFit",
+    "objectPosition",
+    "opacity",
+    "order",
+    "orientation",
+    "orphans",
+    "outline",
+    "outlineColor",
+    "outlineOffset",
+    "outlineStyle",
+    "outlineWidth",
+    "overflow",
+    "overflowWrap",
+    "overflowX",
+    "overflowY",
+    "padding",
+    "paddingBottom",
+    "paddingLeft",
+    "paddingRight",
+    "paddingTop",
+    "page",
+    "pageBreakAfter",
+    "pageBreakBefore",
+    "pageBreakInside",
+    "paintOrder",
+    "perspective",
+    "perspectiveOrigin",
+    "pointerEvents",
+    "position",
+    "quotes",
+    "r",
+    "resize",
+    "right",
+    "rx",
+    "ry",
+    "shapeImageThreshold",
+    "shapeMargin",
+    "shapeOutside",
+    "shapeRendering",
+    "size",
+    "speak",
+    "src",
+    "stopColor",
+    "stopOpacity",
+    "stroke",
+    "strokeDasharray",
+    "strokeDashoffset",
+    "strokeLinecap",
+    "strokeLinejoin",
+    "strokeMiterlimit",
+    "strokeOpacity",
+    "strokeWidth",
+    "tabSize",
+    "tableLayout",
+    "textAlign",
+    "textAnchor",
+    "textDecoration",
+    "textIndent",
+    "textOverflow",
+    "textRendering",
+    "textShadow",
+    "textTransform",
+    "top",
+    "touchAction",
+    "unicodeBidi",
+    "unicodeRange",
+    "userZoom",
+    "vectorEffect",
+    "verticalAlign",
+    "visibility",
+    "whiteSpace",
+    "widows",
+    "width",
+    "willChange",
+    "wordBreak",
+    "wordSpacing",
+    "wordWrap",
+    "writingMode",
+    "x",
+    "y",
+    "zIndex",
+    "zoom"
+];
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/opacity.js */
+
+var prefix = require(195);
+
+
+module.exports = opacity;
+
+
+var css = require(192);
+
+
+function opacity(styles, value) {
+    styles["-ms-filter"] = "progid:DXImageTransform.Microsoft.Alpha(opacity=" + value + ")";
+    styles.filter = "alpha(opacity=" + value + ")";
+    return prefix(styles, "opacity", value, null, css.stopPrefix);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefixes/index.js */
+
+var environment = require(99);
+
+
+if (environment.browser) {
+    module.exports = require(209);
+} else {
+    module.exports = require(210);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/easing.js */
+
+var easing = exports;
+
+
+easing.linear = "linear";
+
+easing.inSine = "cubic-bezier(0.47, 0, 0.745, 0.715)";
+easing.outSine = "cubic-bezier(0.39, 0.575, 0.565, 1)";
+easing.inOutSine = "cubic-bezier(0.445, 0.05, 0.55, 0.95)";
+
+easing.inQuad = "cubic-bezier(0.55, 0.085, 0.68, 0.53)";
+easing.outQuad = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+easing.inOutQuad = "cubic-bezier(0.455, 0.03, 0.515, 0.955)";
+
+easing.inCubic = "cubic-bezier(0.55, 0.055, 0.675, 0.19)";
+easing.outCubic = "cubic-bezier(0.215, 0.61, 0.355, 1)";
+easing.inOutCubic = "cubic-bezier(0.645, 0.045, 0.355, 1)";
+
+easing.inQuart = "cubic-bezier(0.895, 0.03, 0.685, 0.22)";
+easing.outQuart = "cubic-bezier(0.165, 0.84, 0.44, 1)";
+easing.inOutQuart = "cubic-bezier(0.77, 0, 0.175, 1)";
+
+easing.inQuint = "cubic-bezier(0.755, 0.05, 0.855, 0.06)";
+easing.outQuint = "cubic-bezier(0.23, 1, 0.32, 1)";
+easing.inOutQuint = "cubic-bezier(0.86, 0, 0.07, 1)";
+
+easing.inExpo = "cubic-bezier(0.95, 0.05, 0.795, 0.035)";
+easing.outExpo = "cubic-bezier(0.19, 1, 0.22, 1)";
+easing.inOutExpo = "cubic-bezier(1, 0, 0, 1)";
+
+easing.inCirc = "cubic-bezier(0.6, 0.04, 0.98, 0.335)";
+easing.outCirc = "cubic-bezier(0.075, 0.82, 0.165, 1)";
+easing.inOutCirc = "cubic-bezier(0.785, 0.135, 0.15, 0.86)";
+
+easing.inBack = "cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+easing.outBack = "cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+easing.inOutBack = "cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+
+easing["in"] = "cubic-bezier(0.755, 0.05, 0.855, 0.06)";
+easing.out = "cubic-bezier(0.23, 1, 0.32, 1)";
+easing.inOut = "cubic-bezier(0.445, 0.05, 0.55, 0.95)";
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/colors.js */
+
+module.exports = {
+    red50: "#ffebee",
+    red100: "#ffcdd2",
+    red200: "#ef9a9a",
+    red300: "#e57373",
+    red400: "#ef5350",
+    red500: "#f44336",
+    red600: "#e53935",
+    red700: "#d32f2f",
+    red800: "#c62828",
+    red900: "#b71c1c",
+    redA100: "#ff8a80",
+    redA200: "#ff5252",
+    redA400: "#ff1744",
+    redA700: "#d50000",
+
+    pink50: "#fce4ec",
+    pink100: "#f8bbd0",
+    pink200: "#f48fb1",
+    pink300: "#f06292",
+    pink400: "#ec407a",
+    pink500: "#e91e63",
+    pink600: "#d81b60",
+    pink700: "#c2185b",
+    pink800: "#ad1457",
+    pink900: "#880e4f",
+    pinkA100: "#ff80ab",
+    pinkA200: "#ff4081",
+    pinkA400: "#f50057",
+    pinkA700: "#c51162",
+
+    purple50: "#f3e5f5",
+    purple100: "#e1bee7",
+    purple200: "#ce93d8",
+    purple300: "#ba68c8",
+    purple400: "#ab47bc",
+    purple500: "#9c27b0",
+    purple600: "#8e24aa",
+    purple700: "#7b1fa2",
+    purple800: "#6a1b9a",
+    purple900: "#4a148c",
+    purpleA100: "#ea80fc",
+    purpleA200: "#e040fb",
+    purpleA400: "#d500f9",
+    purpleA700: "#aa00ff",
+
+    deepPurple50: "#ede7f6",
+    deepPurple100: "#d1c4e9",
+    deepPurple200: "#b39ddb",
+    deepPurple300: "#9575cd",
+    deepPurple400: "#7e57c2",
+    deepPurple500: "#673ab7",
+    deepPurple600: "#5e35b1",
+    deepPurple700: "#512da8",
+    deepPurple800: "#4527a0",
+    deepPurple900: "#311b92",
+    deepPurpleA100: "#b388ff",
+    deepPurpleA200: "#7c4dff",
+    deepPurpleA400: "#651fff",
+    deepPurpleA700: "#6200ea",
+
+    indigo50: "#e8eaf6",
+    indigo100: "#c5cae9",
+    indigo200: "#9fa8da",
+    indigo300: "#7986cb",
+    indigo400: "#5c6bc0",
+    indigo500: "#3f51b5",
+    indigo600: "#3949ab",
+    indigo700: "#303f9f",
+    indigo800: "#283593",
+    indigo900: "#1a237e",
+    indigoA100: "#8c9eff",
+    indigoA200: "#536dfe",
+    indigoA400: "#3d5afe",
+    indigoA700: "#304ffe",
+
+    blue50: "#e3f2fd",
+    blue100: "#bbdefb",
+    blue200: "#90caf9",
+    blue300: "#64b5f6",
+    blue400: "#42a5f5",
+    blue500: "#2196f3",
+    blue600: "#1e88e5",
+    blue700: "#1976d2",
+    blue800: "#1565c0",
+    blue900: "#0d47a1",
+    blueA100: "#82b1ff",
+    blueA200: "#448aff",
+    blueA400: "#2979ff",
+    blueA700: "#2962ff",
+
+    lightBlue50: "#e1f5fe",
+    lightBlue100: "#b3e5fc",
+    lightBlue200: "#81d4fa",
+    lightBlue300: "#4fc3f7",
+    lightBlue400: "#29b6f6",
+    lightBlue500: "#03a9f4",
+    lightBlue600: "#039be5",
+    lightBlue700: "#0288d1",
+    lightBlue800: "#0277bd",
+    lightBlue900: "#01579b",
+    lightBlueA100: "#80d8ff",
+    lightBlueA200: "#40c4ff",
+    lightBlueA400: "#00b0ff",
+    lightBlueA700: "#0091ea",
+
+    cyan50: "#e0f7fa",
+    cyan100: "#b2ebf2",
+    cyan200: "#80deea",
+    cyan300: "#4dd0e1",
+    cyan400: "#26c6da",
+    cyan500: "#00bcd4",
+    cyan600: "#00acc1",
+    cyan700: "#0097a7",
+    cyan800: "#00838f",
+    cyan900: "#006064",
+    cyanA100: "#84ffff",
+    cyanA200: "#18ffff",
+    cyanA400: "#00e5ff",
+    cyanA700: "#00b8d4",
+
+    teal50: "#e0f2f1",
+    teal100: "#b2dfdb",
+    teal200: "#80cbc4",
+    teal300: "#4db6ac",
+    teal400: "#26a69a",
+    teal500: "#009688",
+    teal600: "#00897b",
+    teal700: "#00796b",
+    teal800: "#00695c",
+    teal900: "#004d40",
+    tealA100: "#a7ffeb",
+    tealA200: "#64ffda",
+    tealA400: "#1de9b6",
+    tealA700: "#00bfa5",
+
+    green50: "#e8f5e9",
+    green100: "#c8e6c9",
+    green200: "#a5d6a7",
+    green300: "#81c784",
+    green400: "#66bb6a",
+    green500: "#4caf50",
+    green600: "#43a047",
+    green700: "#388e3c",
+    green800: "#2e7d32",
+    green900: "#1b5e20",
+    greenA100: "#b9f6ca",
+    greenA200: "#69f0ae",
+    greenA400: "#00e676",
+    greenA700: "#00c853",
+
+    lightGreen50: "#f1f8e9",
+    lightGreen100: "#dcedc8",
+    lightGreen200: "#c5e1a5",
+    lightGreen300: "#aed581",
+    lightGreen400: "#9ccc65",
+    lightGreen500: "#8bc34a",
+    lightGreen600: "#7cb342",
+    lightGreen700: "#689f38",
+    lightGreen800: "#558b2f",
+    lightGreen900: "#33691e",
+    lightGreenA100: "#ccff90",
+    lightGreenA200: "#b2ff59",
+    lightGreenA400: "#76ff03",
+    lightGreenA700: "#64dd17",
+
+    lime50: "#f9fbe7",
+    lime100: "#f0f4c3",
+    lime200: "#e6ee9c",
+    lime300: "#dce775",
+    lime400: "#d4e157",
+    lime500: "#cddc39",
+    lime600: "#c0ca33",
+    lime700: "#afb42b",
+    lime800: "#9e9d24",
+    lime900: "#827717",
+    limeA100: "#f4ff81",
+    limeA200: "#eeff41",
+    limeA400: "#c6ff00",
+    limeA700: "#aeea00",
+
+    yellow50: "#fffde7",
+    yellow100: "#fff9c4",
+    yellow200: "#fff59d",
+    yellow300: "#fff176",
+    yellow400: "#ffee58",
+    yellow500: "#ffeb3b",
+    yellow600: "#fdd835",
+    yellow700: "#fbc02d",
+    yellow800: "#f9a825",
+    yellow900: "#f57f17",
+    yellowA100: "#ffff8d",
+    yellowA200: "#ffff00",
+    yellowA400: "#ffea00",
+    yellowA700: "#ffd600",
+
+    amber50: "#fff8e1",
+    amber100: "#ffecb3",
+    amber200: "#ffe082",
+    amber300: "#ffd54f",
+    amber400: "#ffca28",
+    amber500: "#ffc107",
+    amber600: "#ffb300",
+    amber700: "#ffa000",
+    amber800: "#ff8f00",
+    amber900: "#ff6f00",
+    amberA100: "#ffe57f",
+    amberA200: "#ffd740",
+    amberA400: "#ffc400",
+    amberA700: "#ffab00",
+
+    orange50: "#fff3e0",
+    orange100: "#ffe0b2",
+    orange200: "#ffcc80",
+    orange300: "#ffb74d",
+    orange400: "#ffa726",
+    orange500: "#ff9800",
+    orange600: "#fb8c00",
+    orange700: "#f57c00",
+    orange800: "#ef6c00",
+    orange900: "#e65100",
+    orangeA100: "#ffd180",
+    orangeA200: "#ffab40",
+    orangeA400: "#ff9100",
+    orangeA700: "#ff6d00",
+
+    deepOrange50: "#fbe9e7",
+    deepOrange100: "#ffccbc",
+    deepOrange200: "#ffab91",
+    deepOrange300: "#ff8a65",
+    deepOrange400: "#ff7043",
+    deepOrange500: "#ff5722",
+    deepOrange600: "#f4511e",
+    deepOrange700: "#e64a19",
+    deepOrange800: "#d84315",
+    deepOrange900: "#bf360c",
+    deepOrangeA100: "#ff9e80",
+    deepOrangeA200: "#ff6e40",
+    deepOrangeA400: "#ff3d00",
+    deepOrangeA700: "#dd2c00",
+
+    brown50: "#efebe9",
+    brown100: "#d7ccc8",
+    brown200: "#bcaaa4",
+    brown300: "#a1887f",
+    brown400: "#8d6e63",
+    brown500: "#795548",
+    brown600: "#6d4c41",
+    brown700: "#5d4037",
+    brown800: "#4e342e",
+    brown900: "#3e2723",
+
+    blueGrey50: "#eceff1",
+    blueGrey100: "#cfd8dc",
+    blueGrey200: "#b0bec5",
+    blueGrey300: "#90a4ae",
+    blueGrey400: "#78909c",
+    blueGrey500: "#607d8b",
+    blueGrey600: "#546e7a",
+    blueGrey700: "#455a64",
+    blueGrey800: "#37474f",
+    blueGrey900: "#263238",
+
+    grey50: "#fafafa",
+    grey100: "#f5f5f5",
+    grey200: "#eeeeee",
+    grey300: "#e0e0e0",
+    grey400: "#bdbdbd",
+    grey500: "#9e9e9e",
+    grey600: "#757575",
+    grey700: "#616161",
+    grey800: "#424242",
+    grey900: "#212121",
+
+    black: "#000000",
+    white: "#ffffff",
+
+    transparent: "rgba(0, 0, 0, 0)",
+    fullBlack: "rgba(0, 0, 0, 1)",
+    darkBlack: "rgba(0, 0, 0, 0.87)",
+    lightBlack: "rgba(0, 0, 0, 0.54)",
+    minBlack: "rgba(0, 0, 0, 0.26)",
+    faintBlack: "rgba(0, 0, 0, 0.12)",
+    fullWhite: "rgba(255, 255, 255, 1)",
+    darkWhite: "rgba(255, 255, 255, 0.87)",
+    lightWhite: "rgba(255, 255, 255, 0.54)"
+
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/Styles.js */
+
+var arrayForEach = require(120),
+    indexOf = require(54),
+    capitalizeString = require(103),
+    transition = require(197),
+    textShadow = require(198),
+    properties = require(196),
+    nonPrefixProperties = require(199),
+    prefix = require(195);
+
+
+var Array_slice = Array.prototype.slice,
+    StylesPrototype;
+
+
+module.exports = Styles;
+
+
+var css = require(192);
+
+
+function Styles() {}
+StylesPrototype = Styles.prototype;
+
+arrayForEach(properties, function(key) {
+    if (indexOf(nonPrefixProperties, key) === -1) {
+        StylesPrototype["set" + capitalizeString(key)] = function(value) {
+            return prefix(this, key, value, null, css.stopPrefix);
+        };
+    } else {
+        StylesPrototype["set" + capitalizeString(key)] = function(value) {
+            this[key] = value;
+            return this;
+        };
+    }
+});
+
+StylesPrototype.setTransition = function() {
+    return transition(this, Array_slice.call(arguments));
+};
+
+StylesPrototype.setTextShadow = function() {
+    return textShadow(this, Array_slice.call(arguments));
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/manipulators/darken.js */
+
+var color = require(213),
+    toStyle = require(214);
+
+
+var darken_color = color.create();
+
+
+module.exports = darken;
+
+
+function darken(style, amount) {
+    var value = darken_color,
+        alpha;
+    color.fromStyle(value, style);
+    alpha = value[3];
+    color.smul(value, value, 1 - amount);
+    color.cnormalize(value, value);
+    value[3] = alpha;
+    return toStyle(value);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/manipulators/fade.js */
+
+var color = require(213),
+    toStyle = require(214);
+
+
+var fade_color = color.create();
+
+
+module.exports = fade;
+
+
+function fade(style, amount) {
+    var value = fade_color;
+    color.fromStyle(value, style);
+    value[3] *= amount;
+    return toStyle(value);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/manipulators/lighten.js */
+
+var color = require(213),
+    toStyle = require(214);
+
+
+var lighten_color = color.create();
+
+
+module.exports = lighten;
+
+
+function lighten(style, amount) {
+    var value = lighten_color,
+        alpha;
+    color.fromStyle(value, style);
+    alpha = value[3];
+    color.smul(value, value, 1 + amount);
+    color.cnormalize(value, value);
+    value[3] = alpha;
+    return toStyle(value);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/clamp/src/index.js */
+
+module.exports = clamp;
+
+
+function clamp(x, min, max) {
+    if (x < min) {
+        return min;
+    } else if (x > max) {
+        return max;
+    } else {
+        return x;
+    }
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefixes/browser.js */
+
+var environment = require(99),
+    getCurrentStyle = require(96),
+    Prefix = require(211);
+
+
+var document = environment.document,
+
+    styles = getCurrentStyle(document.documentElement || document.body.parentNode),
+
+    pre = (
+        Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/) ||
+        (styles.OLink === "" && ["", "0"])
+    )[1],
+
+    dom = ("WebKit|Moz|MS|O").match(new RegExp("(" + pre + ")", "i"))[1];
+
+
+module.exports = [new Prefix(dom, pre)];
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefixes/node.js */
+
+var Prefix = require(211);
+
+
+module.exports = [
+    new Prefix("WebKit", "webkit"),
+    new Prefix("Moz", "moz"),
+    new Prefix("MS", "ms"),
+    new Prefix("O", "o")
+];
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefixes/Prefix.js */
+
+var capitalizeString = require(103);
+
+
+module.exports = Prefix;
+
+
+function Prefix(dom, pre) {
+    this.dom = dom;
+    this.lowercase = pre;
+    this.css = "-" + pre + "-";
+    this.js = capitalizeString(pre);
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/prefixArray.js */
+
+module.exports = prefixArray;
+
+
+function prefixArray(prefix, array) {
+    var length = array.length,
+        i = -1,
+        il = length - 1,
+        out = new Array(length);
+
+    while (i++ < il) {
+        out[i] = prefix + array[i];
+    }
+
+    return out;
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/color/src/index.js */
+
+var mathf = require(215),
+    vec3 = require(216),
+    vec4 = require(217),
+    isNumber = require(21);
+
+
+var color = exports;
+
+
+color.ArrayType = typeof(Float32Array) !== "undefined" ? Float32Array : mathf.ArrayType;
+
+
+color.create = function(r, g, b, a) {
+    var out = new color.ArrayType(4);
+
+    out[0] = r !== undefined ? r : 0;
+    out[1] = g !== undefined ? g : 0;
+    out[2] = b !== undefined ? b : 0;
+    out[3] = a !== undefined ? a : 1;
+
+    return out;
+};
+
+color.copy = vec4.copy;
+
+color.clone = function(a) {
+    var out = new color.ArrayType(4);
+
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+
+    return out;
+};
+
+color.setRGB = vec3.set;
+color.setRGBA = vec4.set;
+
+color.add = vec4.add;
+color.sub = vec4.sub;
+
+color.mul = vec4.mul;
+color.div = vec4.div;
+
+color.sadd = vec4.sadd;
+color.ssub = vec4.ssub;
+
+color.smul = vec4.smul;
+color.sdiv = vec4.sdiv;
+
+color.lengthSqValues = vec4.lengthSqValues;
+color.lengthValues = vec4.lengthValues;
+color.invLengthValues = vec4.invLengthValues;
+
+color.dot = vec4.dot;
+
+color.lengthSq = vec4.lengthSq;
+
+color.length = vec4.length;
+
+color.invLength = vec4.invLength;
+
+color.setLength = vec4.setLength;
+
+color.normalize = vec4.normalize;
+
+color.lerp = vec4.lerp;
+
+color.min = vec4.min;
+
+color.max = vec4.max;
+
+color.clamp = vec4.clamp;
+
+color.equal = vec4.equal;
+
+color.notEqual = vec4.notEqual;
+
+
+var cmin = color.create(0, 0, 0, 0),
+    cmax = color.create(1, 1, 1, 1);
+
+color.cnormalize = function(out, a) {
+    return color.clamp(out, a, cmin, cmax);
+};
+
+color.str = function(out) {
+    return "Color(" + out[0] + ", " + out[1] + ", " + out[2] + ", " + out[3] + ")";
+};
+
+color.set = function(out, r, g, b, a) {
+    var type = typeof(r);
+
+    if (type === "number") {
+        out[0] = r !== undefined ? r : 0;
+        out[1] = g !== undefined ? g : 0;
+        out[2] = b !== undefined ? b : 0;
+        out[3] = a !== undefined ? a : 1;
+    } else if (type === "string") {
+        color.fromStyle(out, r);
+    } else if (r.length === +r.length) {
+        out[0] = r[0] || 0;
+        out[1] = r[1] || 0;
+        out[2] = r[2] || 0;
+        out[3] = r[3] || 1;
+    }
+
+    return out;
+};
+
+function to256(value) {
+    return (value * 255) | 0;
+}
+
+color.toRGB = function(out, alpha) {
+    if (isNumber(alpha)) {
+        return "rgba(" + to256(out[0]) + "," + to256(out[1]) + "," + to256(out[2]) + "," + (mathf.clamp01(alpha) || 0) + ")";
+    } else {
+        return "rgb(" + to256(out[0]) + "," + to256(out[1]) + "," + to256(out[2]) + ")";
+    }
+};
+
+color.toRGBA = function(out) {
+    return "rgba(" + to256(out[0]) + "," + to256(out[1]) + "," + to256(out[2]) + "," + (mathf.clamp01(out[3]) || 0) + ")";
+};
+
+function toHEX(value) {
+    value = mathf.clamp(value * 255, 0, 255) | 0;
+
+    if (value < 16) {
+        return "0" + value.toString(16);
+    } else if (value < 255) {
+        return value.toString(16);
+    } else {
+        return "ff";
+    }
+}
+
+color.toHEX = function(out) {
+    return "#" + toHEX(out[0]) + toHEX(out[1]) + toHEX(out[2]);
+};
+
+var rgb255 = /^rgb\((\d+),(?:\s+)?(\d+),(?:\s+)?(\d+)\)$/i,
+    inv255 = 1 / 255;
+color.fromRGB = function(out, style) {
+    var values = rgb255.exec(style);
+    out[0] = mathf.min(255, Number(values[1])) * inv255;
+    out[1] = mathf.min(255, Number(values[2])) * inv255;
+    out[2] = mathf.min(255, Number(values[3])) * inv255;
+    out[3] = 1;
+    return out;
+};
+
+var rgba255 = /^rgba\((\d+),(?:\s+)?(\d+),(?:\s+)?(\d+),(?:\s+)?((?:\.)?\d+(?:\.\d+)?)\)$/i;
+color.fromRGBA = function(out, style) {
+    var values = rgba255.exec(style);
+    out[0] = mathf.min(255, Number(values[1])) * inv255;
+    out[1] = mathf.min(255, Number(values[2])) * inv255;
+    out[2] = mathf.min(255, Number(values[3])) * inv255;
+    out[3] = mathf.min(1, Number(values[4]));
+    return out;
+};
+
+var rgb100 = /^rgb\((\d+)\%,(?:\s+)?(\d+)\%,(?:\s+)?(\d+)\%\)$/i,
+    inv100 = 1 / 100;
+color.fromRGB100 = function(out, style) {
+    var values = rgb100.exec(style);
+    out[0] = mathf.min(100, Number(values[1])) * inv100;
+    out[1] = mathf.min(100, Number(values[2])) * inv100;
+    out[2] = mathf.min(100, Number(values[3])) * inv100;
+    out[3] = 1;
+    return out;
+};
+
+color.fromHEX = function(out, style) {
+    out[0] = parseInt(style.substr(1, 2), 16) * inv255;
+    out[1] = parseInt(style.substr(3, 2), 16) * inv255;
+    out[2] = parseInt(style.substr(5, 2), 16) * inv255;
+    out[3] = 1;
+    return out;
+};
+
+var hex3to6 = /#(.)(.)(.)/,
+    hex3to6String = "#$1$1$2$2$3$3";
+color.fromHEX3 = function(out, style) {
+    style = style.replace(hex3to6, hex3to6String);
+    out[0] = parseInt(style.substr(1, 2), 16) * inv255;
+    out[1] = parseInt(style.substr(3, 2), 16) * inv255;
+    out[2] = parseInt(style.substr(5, 2), 16) * inv255;
+    out[3] = 1;
+    return out;
+};
+
+color.fromColorName = function(out, style) {
+    return color.fromHEX(out, colorNames[style.toLowerCase()]);
+};
+
+var hex6 = /^\#([0.0-9a-f]{6})$/i,
+    hex3 = /^\#([0.0-9a-f])([0.0-9a-f])([0.0-9a-f])$/i,
+    colorName = /^(\w+)$/i;
+color.fromStyle = function(out, style) {
+    if (rgb255.test(style)) {
+        return color.fromRGB(out, style);
+    } else if (rgba255.test(style)) {
+        return color.fromRGBA(out, style);
+    } else if (rgb100.test(style)) {
+        return color.fromRGB100(out, style);
+    } else if (hex6.test(style)) {
+        return color.fromHEX(out, style);
+    } else if (hex3.test(style)) {
+        return color.fromHEX3(out, style);
+    } else if (colorName.test(style)) {
+        return color.fromColorName(out, style);
+    } else {
+        return out;
+    }
+};
+
+var colorNames = color.colorNames = {
+    aliceblue: "#f0f8ff",
+    antiquewhite: "#faebd7",
+    aqua: "#00ffff",
+    aquamarine: "#7fffd4",
+    azure: "#f0ffff",
+    beige: "#f5f5dc",
+    bisque: "#ffe4c4",
+    black: "#000000",
+    blanchedalmond: "#ffebcd",
+    blue: "#0000ff",
+    blueviolet: "#8a2be2",
+    brown: "#a52a2a",
+    burlywood: "#deb887",
+    cadetblue: "#5f9ea0",
+    chartreuse: "#7fff00",
+    chocolate: "#d2691e",
+    coral: "#ff7f50",
+    cornflowerblue: "#6495ed",
+    cornsilk: "#fff8dc",
+    crimson: "#dc143c",
+    cyan: "#00ffff",
+    darkblue: "#00008b",
+    darkcyan: "#008b8b",
+    darkgoldenrod: "#b8860b",
+    darkgray: "#a9a9a9",
+    darkgreen: "#006400",
+    darkkhaki: "#bdb76b",
+    darkmagenta: "#8b008b",
+    darkolivegreen: "#556b2f",
+    darkorange: "#ff8c00",
+    darkorchid: "#9932cc",
+    darkred: "#8b0000",
+    darksalmon: "#e9967a",
+    darkseagreen: "#8fbc8f",
+    darkslateblue: "#483d8b",
+    darkslategray: "#2f4f4f",
+    darkturquoise: "#00ced1",
+    darkviolet: "#9400d3",
+    deeppink: "#ff1493",
+    deepskyblue: "#00bfff",
+    dimgray: "#696969",
+    dodgerblue: "#1e90ff",
+    firebrick: "#b22222",
+    floralwhite: "#fffaf0",
+    forestgreen: "#228b22",
+    fuchsia: "#ff00ff",
+    gainsboro: "#dcdcdc",
+    ghostwhite: "#f8f8ff",
+    gold: "#ffd700",
+    goldenrod: "#daa520",
+    gray: "#808080",
+    green: "#008000",
+    greenyellow: "#adff2f",
+    grey: "#808080",
+    honeydew: "#f0fff0",
+    hotpink: "#ff69b4",
+    indianred: "#cd5c5c",
+    indigo: "#4b0082",
+    ivory: "#fffff0",
+    khaki: "#f0e68c",
+    lavender: "#e6e6fa",
+    lavenderblush: "#fff0f5",
+    lawngreen: "#7cfc00",
+    lemonchiffon: "#fffacd",
+    lightblue: "#add8e6",
+    lightcoral: "#f08080",
+    lightcyan: "#e0ffff",
+    lightgoldenrodyellow: "#fafad2",
+    lightgrey: "#d3d3d3",
+    lightgreen: "#90ee90",
+    lightpink: "#ffb6c1",
+    lightsalmon: "#ffa07a",
+    lightseagreen: "#20b2aa",
+    lightskyblue: "#87cefa",
+    lightslategray: "#778899",
+    lightsteelblue: "#b0c4de",
+    lightyellow: "#ffffe0",
+    lime: "#00ff00",
+    limegreen: "#32cd32",
+    linen: "#faf0e6",
+    magenta: "#ff00ff",
+    maroon: "#800000",
+    mediumaquamarine: "#66cdaa",
+    mediumblue: "#0000cd",
+    mediumorchid: "#ba55d3",
+    mediumpurple: "#9370d8",
+    mediumseagreen: "#3cb371",
+    mediumslateblue: "#7b68ee",
+    mediumspringgreen: "#00fa9a",
+    mediumturquoise: "#48d1cc",
+    mediumvioletred: "#c71585",
+    midnightblue: "#191970",
+    mintcream: "#f5fffa",
+    mistyrose: "#ffe4e1",
+    moccasin: "#ffe4b5",
+    navajowhite: "#ffdead",
+    navy: "#000080",
+    oldlace: "#fdf5e6",
+    olive: "#808000",
+    olivedrab: "#6b8e23",
+    orange: "#ffa500",
+    orangered: "#ff4500",
+    orchid: "#da70d6",
+    palegoldenrod: "#eee8aa",
+    palegreen: "#98fb98",
+    paleturquoise: "#afeeee",
+    palevioletred: "#d87093",
+    papayawhip: "#ffefd5",
+    peachpuff: "#ffdab9",
+    peru: "#cd853f",
+    pink: "#ffc0cb",
+    plum: "#dda0dd",
+    powderblue: "#b0e0e6",
+    purple: "#800080",
+    red: "#ff0000",
+    rosybrown: "#bc8f8f",
+    royalblue: "#4169e1",
+    saddlebrown: "#8b4513",
+    salmon: "#fa8072",
+    sandybrown: "#f4a460",
+    seagreen: "#2e8b57",
+    seashell: "#fff5ee",
+    sienna: "#a0522d",
+    silver: "#c0c0c0",
+    skyblue: "#87ceeb",
+    slateblue: "#6a5acd",
+    slategray: "#708090",
+    snow: "#fffafa",
+    springgreen: "#00ff7f",
+    steelblue: "#4682b4",
+    tan: "#d2b48c",
+    teal: "#008080",
+    thistle: "#d8bfd8",
+    tomato: "#ff6347",
+    turquoise: "#40e0d0",
+    violet: "#ee82ee",
+    wheat: "#f5deb3",
+    white: "#ffffff",
+    whitesmoke: "#f5f5f5",
+    yellow: "#ffff00",
+    yellowgreen: "#9acd32"
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/src/manipulators/toStyle.js */
+
+var color = require(213);
+
+
+module.exports = toStyle;
+
+
+function toStyle(value) {
+    if (value[3] === 1) {
+        return color.toHEX(value);
+    } else {
+        return color.toRGBA(value);
+    }
+}
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/color/node_modules/mathf/src/index.js */
+
+var keys = require(34),
+    isNaN = require(218);
+
+
+var mathf = exports,
+
+    NativeMath = Math,
+
+    NativeFloat32Array = typeof(Float32Array) !== "undefined" ? Float32Array : Array;
+
+
+mathf.ArrayType = NativeFloat32Array;
+
+mathf.PI = NativeMath.PI;
+mathf.TAU = mathf.PI * 2;
+mathf.TWO_PI = mathf.TAU;
+mathf.HALF_PI = mathf.PI * 0.5;
+mathf.FOURTH_PI = mathf.PI * 0.25;
+
+mathf.EPSILON = Number.EPSILON || NativeMath.pow(2, -52);
+
+mathf.TO_RADS = mathf.PI / 180;
+mathf.TO_DEGS = 180 / mathf.PI;
+
+mathf.E = NativeMath.E;
+mathf.LN2 = NativeMath.LN2;
+mathf.LN10 = NativeMath.LN10;
+mathf.LOG2E = NativeMath.LOG2E;
+mathf.LOG10E = NativeMath.LOG10E;
+mathf.SQRT1_2 = NativeMath.SQRT1_2;
+mathf.SQRT2 = NativeMath.SQRT2;
+
+mathf.abs = NativeMath.abs;
+
+mathf.acos = NativeMath.acos;
+mathf.acosh = NativeMath.acosh || (NativeMath.acosh = function acosh(x) {
+    return mathf.log(x + mathf.sqrt(x * x - 1));
+});
+mathf.asin = NativeMath.asin;
+mathf.asinh = NativeMath.asinh || (NativeMath.asinh = function asinh(x) {
+    if (x === -Infinity) {
+        return x;
+    } else {
+        return mathf.log(x + mathf.sqrt(x * x + 1));
+    }
+});
+mathf.atan = NativeMath.atan;
+mathf.atan2 = NativeMath.atan2;
+mathf.atanh = NativeMath.atanh || (NativeMath.atanh = function atanh(x) {
+    return mathf.log((1 + x) / (1 - x)) / 2;
+});
+
+mathf.cbrt = NativeMath.cbrt || (NativeMath.cbrt = function cbrt(x) {
+    var y = mathf.pow(mathf.abs(x), 1 / 3);
+    return x < 0 ? -y : y;
+});
+
+mathf.ceil = NativeMath.ceil;
+
+mathf.clz32 = NativeMath.clz32 || (NativeMath.clz32 = function clz32(value) {
+    value = +value >>> 0;
+    return value ? 32 - value.toString(2).length : 32;
+});
+
+mathf.cos = NativeMath.cos;
+mathf.cosh = NativeMath.cosh || (NativeMath.cosh = function cosh(x) {
+    return (mathf.exp(x) + mathf.exp(-x)) / 2;
+});
+
+mathf.exp = NativeMath.exp;
+
+mathf.expm1 = NativeMath.expm1 || (NativeMath.expm1 = function expm1(x) {
+    return mathf.exp(x) - 1;
+});
+
+mathf.floor = NativeMath.floor;
+mathf.fround = NativeMath.fround || (NativeMath.fround = function fround(x) {
+    return new NativeFloat32Array([x])[0];
+});
+
+mathf.hypot = NativeMath.hypot || (NativeMath.hypot = function hypot() {
+    var y = 0,
+        i = -1,
+        il = arguments.length - 1,
+        value;
+
+    while (i++ < il) {
+        value = arguments[i];
+
+        if (value === Infinity || value === -Infinity) {
+            return Infinity;
+        } else {
+            y += value * value;
+        }
+    }
+
+    return mathf.sqrt(y);
+});
+
+mathf.imul = NativeMath.imul || (NativeMath.imul = function imul(a, b) {
+    var ah = (a >>> 16) & 0xffff,
+        al = a & 0xffff,
+        bh = (b >>> 16) & 0xffff,
+        bl = b & 0xffff;
+
+    return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0) | 0);
+});
+
+mathf.log = NativeMath.log;
+
+mathf.log1p = NativeMath.log1p || (NativeMath.log1p = function log1p(x) {
+    return mathf.log(1 + x);
+});
+
+mathf.log10 = NativeMath.log10 || (NativeMath.log10 = function log10(x) {
+    return mathf.log(x) / mathf.LN10;
+});
+
+mathf.log2 = NativeMath.log2 || (NativeMath.log2 = function log2(x) {
+    return mathf.log(x) / mathf.LN2;
+});
+
+mathf.max = NativeMath.max;
+mathf.min = NativeMath.min;
+
+mathf.pow = NativeMath.pow;
+
+mathf.random = NativeMath.random;
+mathf.round = NativeMath.round;
+
+mathf.sign = NativeMath.sign || (NativeMath.sign = function sign(x) {
+    x = +x;
+    if (x === 0 || isNaN(x)) {
+        return x;
+    } else {
+        return x > 0 ? 1 : -1;
+    }
+});
+
+mathf.sin = NativeMath.sin;
+mathf.sinh = NativeMath.sinh || (NativeMath.sinh = function sinh(x) {
+    return (mathf.exp(x) - mathf.exp(-x)) / 2;
+});
+mathf.sqrt = NativeMath.sqrt;
+
+mathf.tan = NativeMath.tan;
+mathf.tanh = NativeMath.tanh || (NativeMath.tanh = function tanh(x) {
+    if (x === Infinity) {
+        return 1;
+    } else if (x === -Infinity) {
+        return -1;
+    } else {
+        return (mathf.exp(x) - mathf.exp(-x)) / (mathf.exp(x) + mathf.exp(-x));
+    }
+});
+
+mathf.trunc = NativeMath.trunc || (NativeMath.trunc = function trunc(x) {
+    return x < 0 ? mathf.ceil(x) : mathf.floor(x);
+});
+
+mathf.equals = function(a, b, e) {
+    return mathf.abs(a - b) < (e !== void 0 ? e : mathf.EPSILON);
+};
+
+mathf.modulo = function(a, b) {
+    var r = a % b;
+
+    return (r * b < 0) ? r + b : r;
+};
+
+mathf.standardRadian = function(x) {
+    return mathf.modulo(x, mathf.TWO_PI);
+};
+
+mathf.standardAngle = function(x) {
+    return mathf.modulo(x, 360);
+};
+
+mathf.snap = function(x, y) {
+    var m = x % y;
+    return m < (y * 0.5) ? x - m : x + y - m;
+};
+
+mathf.clamp = function(x, min, max) {
+    return x < min ? min : x > max ? max : x;
+};
+
+mathf.clampBottom = function(x, min) {
+    return x < min ? min : x;
+};
+
+mathf.clampTop = function(x, max) {
+    return x > max ? max : x;
+};
+
+mathf.clamp01 = function(x) {
+    return x < 0 ? 0 : x > 1 ? 1 : x;
+};
+
+mathf.truncate = function(x, n) {
+    var p = mathf.pow(10, n),
+        num = x * p;
+
+    return (num < 0 ? mathf.ceil(num) : mathf.floor(num)) / p;
+};
+
+mathf.lerp = function(a, b, x) {
+    return a + (b - a) * x;
+};
+
+mathf.lerpRadian = function(a, b, x) {
+    return mathf.standardRadian(a + (b - a) * x);
+};
+
+mathf.lerpAngle = function(a, b, x) {
+    return mathf.standardAngle(a + (b - a) * x);
+};
+
+mathf.lerpCos = function(a, b, x) {
+    var ft = x * mathf.PI,
+        f = (1 - mathf.cos(ft)) * 0.5;
+
+    return a * (1 - f) + b * f;
+};
+
+mathf.lerpCubic = function(v0, v1, v2, v3, x) {
+    var P, Q, R, S, Px, Qx, Rx;
+
+    v0 = v0 || v1;
+    v3 = v3 || v2;
+
+    P = (v3 - v2) - (v0 - v1);
+    Q = (v0 - v1) - P;
+    R = v2 - v0;
+    S = v1;
+
+    Px = P * x;
+    Qx = Q * x;
+    Rx = R * x;
+
+    return (Px * Px * Px) + (Qx * Qx) + Rx + S;
+};
+
+mathf.smoothStep = function(x, min, max) {
+    if (x <= min) {
+        return 0;
+    } else {
+        if (x >= max) {
+            return 1;
+        } else {
+            x = (x - min) / (max - min);
+            return x * x * (3 - 2 * x);
+        }
+    }
+};
+
+mathf.smootherStep = function(x, min, max) {
+    if (x <= min) {
+        return 0;
+    } else {
+        if (x >= max) {
+            return 1;
+        } else {
+            x = (x - min) / (max - min);
+            return x * x * x * (x * (x * 6 - 15) + 10);
+        }
+    }
+};
+
+mathf.pingPong = function(x, length) {
+    length = +length || 1;
+    return length - mathf.abs(x % (2 * length) - length);
+};
+
+mathf.degsToRads = function(x) {
+    return mathf.standardRadian(x * mathf.TO_RADS);
+};
+
+mathf.radsToDegs = function(x) {
+    return mathf.standardAngle(x * mathf.TO_DEGS);
+};
+
+mathf.randInt = function(min, max) {
+    return mathf.round(min + (mathf.random() * (max - min)));
+};
+
+mathf.randFloat = function(min, max) {
+    return min + (mathf.random() * (max - min));
+};
+
+mathf.randSign = function() {
+    return mathf.random() < 0.5 ? 1 : -1;
+};
+
+mathf.shuffle = function(array) {
+    var i = array.length,
+        j, x;
+
+    while (i) {
+        j = (mathf.random() * i--) | 0;
+        x = array[i];
+        array[i] = array[j];
+        array[j] = x;
+    }
+
+    return array;
+};
+
+mathf.randArg = function() {
+    return arguments[(mathf.random() * arguments.length) | 0];
+};
+
+mathf.randChoice = function(array) {
+    return array[(mathf.random() * array.length) | 0];
+};
+
+mathf.randChoiceObject = function(object) {
+    var objectKeys = keys(object);
+    return object[objectKeys[(mathf.random() * objectKeys.length) | 0]];
+};
+
+mathf.isPowerOfTwo = function(x) {
+    return (x & -x) === x;
+};
+
+mathf.floorPowerOfTwo = function(x) {
+    var i = 2,
+        prev;
+
+    while (i < x) {
+        prev = i;
+        i *= 2;
+    }
+
+    return prev;
+};
+
+mathf.ceilPowerOfTwo = function(x) {
+    var i = 2;
+
+    while (i < x) {
+        i *= 2;
+    }
+
+    return i;
+};
+
+var n225 = 0.39269908169872414,
+    n675 = 1.1780972450961724,
+    n1125 = 1.9634954084936207,
+    n1575 = 2.748893571891069,
+    n2025 = 3.5342917352885173,
+    n2475 = 4.319689898685966,
+    n2925 = 5.105088062083414,
+    n3375 = 5.8904862254808625,
+
+    RIGHT = "right",
+    UP_RIGHT = "up_right",
+    UP = "up",
+    UP_LEFT = "up_left",
+    LEFT = "left",
+    DOWN_LEFT = "down_left",
+    DOWN = "down",
+    DOWN_RIGHT = "down_right";
+
+mathf.directionAngle = function(a) {
+    a = mathf.standardRadian(a);
+
+    return (
+        (a >= n225 && a < n675) ? UP_RIGHT :
+        (a >= n675 && a < n1125) ? UP :
+        (a >= n1125 && a < n1575) ? UP_LEFT :
+        (a >= n1575 && a < n2025) ? LEFT :
+        (a >= n2025 && a < n2475) ? DOWN_LEFT :
+        (a >= n2475 && a < n2925) ? DOWN :
+        (a >= n2925 && a < n3375) ? DOWN_RIGHT :
+        RIGHT
+    );
+};
+
+mathf.direction = function(x, y) {
+    var a = mathf.standardRadian(mathf.atan2(y, x));
+
+    return (
+        (a >= n225 && a < n675) ? UP_RIGHT :
+        (a >= n675 && a < n1125) ? UP :
+        (a >= n1125 && a < n1575) ? UP_LEFT :
+        (a >= n1575 && a < n2025) ? LEFT :
+        (a >= n2025 && a < n2475) ? DOWN_LEFT :
+        (a >= n2475 && a < n2925) ? DOWN :
+        (a >= n2925 && a < n3375) ? DOWN_RIGHT :
+        RIGHT
+    );
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/color/node_modules/vec3/src/index.js */
+
+var mathf = require(215);
+
+
+var vec3 = exports;
+
+
+vec3.ArrayType = typeof(Float32Array) !== "undefined" ? Float32Array : mathf.ArrayType;
+
+
+vec3.create = function(x, y, z) {
+    var out = new vec3.ArrayType(3);
+
+    out[0] = x !== undefined ? x : 0;
+    out[1] = y !== undefined ? y : 0;
+    out[2] = z !== undefined ? z : 0;
+
+    return out;
+};
+
+vec3.copy = function(out, a) {
+
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+
+    return out;
+};
+
+vec3.clone = function(a) {
+    var out = new vec3.ArrayType(3);
+
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+
+    return out;
+};
+
+vec3.set = function(out, x, y, z) {
+
+    out[0] = x !== undefined ? x : 0;
+    out[1] = y !== undefined ? y : 0;
+    out[2] = z !== undefined ? z : 0;
+
+    return out;
+};
+
+vec3.add = function(out, a, b) {
+
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+
+    return out;
+};
+
+vec3.sub = function(out, a, b) {
+
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    out[2] = a[2] - b[2];
+
+    return out;
+};
+
+vec3.mul = function(out, a, b) {
+
+    out[0] = a[0] * b[0];
+    out[1] = a[1] * b[1];
+    out[2] = a[2] * b[2];
+
+    return out;
+};
+
+vec3.div = function(out, a, b) {
+    var bx = b[0],
+        by = b[1],
+        bz = b[2];
+
+    out[0] = a[0] * (bx !== 0 ? 1 / bx : bx);
+    out[1] = a[1] * (by !== 0 ? 1 / by : by);
+    out[2] = a[2] * (bz !== 0 ? 1 / bz : bz);
+
+    return out;
+};
+
+vec3.sadd = function(out, a, s) {
+
+    out[0] = a[0] + s;
+    out[1] = a[1] + s;
+    out[2] = a[2] + s;
+
+    return out;
+};
+
+vec3.ssub = function(out, a, s) {
+
+    out[0] = a[0] - s;
+    out[1] = a[1] - s;
+    out[2] = a[2] - s;
+
+    return out;
+};
+
+vec3.smul = function(out, a, s) {
+
+    out[0] = a[0] * s;
+    out[1] = a[1] * s;
+    out[2] = a[2] * s;
+
+    return out;
+};
+
+vec3.sdiv = function(out, a, s) {
+    s = s !== 0 ? 1 / s : s;
+
+    out[0] = a[0] * s;
+    out[1] = a[1] * s;
+    out[2] = a[2] * s;
+
+    return out;
+};
+
+vec3.lengthSqValues = function(x, y, z) {
+
+    return x * x + y * y + z * z;
+};
+
+vec3.lengthValues = function(x, y, z) {
+    var lsq = vec3.lengthSqValues(x, y, z);
+
+    return lsq !== 0 ? mathf.sqrt(lsq) : lsq;
+};
+
+vec3.invLengthValues = function(x, y, z) {
+    var lsq = vec3.lengthSqValues(x, y, z);
+
+    return lsq !== 0 ? 1 / mathf.sqrt(lsq) : lsq;
+};
+
+vec3.cross = function(out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        bx = b[0],
+        by = b[1],
+        bz = b[2];
+
+    out[0] = ay * bz - az * by;
+    out[1] = az * bx - ax * bz;
+    out[2] = ax * by - ay * bx;
+
+    return out;
+};
+
+vec3.dot = function(a, b) {
+
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+};
+
+vec3.lengthSq = function(a) {
+
+    return vec3.dot(a, a);
+};
+
+vec3.length = function(a) {
+    var lsq = vec3.lengthSq(a);
+
+    return lsq !== 0 ? mathf.sqrt(lsq) : lsq;
+};
+
+vec3.invLength = function(a) {
+    var lsq = vec3.lengthSq(a);
+
+    return lsq !== 0 ? 1 / mathf.sqrt(lsq) : lsq;
+};
+
+vec3.setLength = function(out, a, length) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        s = length * vec3.invLengthValues(x, y, z);
+
+    out[0] = x * s;
+    out[1] = y * s;
+    out[2] = z * s;
+
+    return out;
+};
+
+vec3.normalize = function(out, a) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        invlsq = vec3.invLengthValues(x, y, z);
+
+    out[0] = x * invlsq;
+    out[1] = y * invlsq;
+    out[2] = z * invlsq;
+
+    return out;
+};
+
+vec3.inverse = function(out, a) {
+
+    out[0] = a[0] * -1;
+    out[1] = a[1] * -1;
+    out[2] = a[2] * -1;
+
+    return out;
+};
+
+vec3.lerp = function(out, a, b, x) {
+    var lerp = mathf.lerp;
+
+    out[0] = lerp(a[0], b[0], x);
+    out[1] = lerp(a[1], b[1], x);
+    out[2] = lerp(a[2], b[2], x);
+
+    return out;
+};
+
+vec3.min = function(out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        bx = b[0],
+        by = b[1],
+        bz = b[2];
+
+    out[0] = bx < ax ? bx : ax;
+    out[1] = by < ay ? by : ay;
+    out[2] = bz < az ? bz : az;
+
+    return out;
+};
+
+vec3.max = function(out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        bx = b[0],
+        by = b[1],
+        bz = b[2];
+
+    out[0] = bx > ax ? bx : ax;
+    out[1] = by > ay ? by : ay;
+    out[2] = bz > az ? bz : az;
+
+    return out;
+};
+
+vec3.clamp = function(out, a, min, max) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        minx = min[0],
+        miny = min[1],
+        minz = min[2],
+        maxx = max[0],
+        maxy = max[1],
+        maxz = max[2];
+
+    out[0] = x < minx ? minx : x > maxx ? maxx : x;
+    out[1] = y < miny ? miny : y > maxy ? maxy : y;
+    out[2] = z < minz ? minz : z > maxz ? maxz : z;
+
+    return out;
+};
+
+vec3.transformMat3 = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2];
+
+    out[0] = x * m[0] + y * m[3] + z * m[6];
+    out[1] = x * m[1] + y * m[4] + z * m[7];
+    out[2] = x * m[2] + y * m[5] + z * m[8];
+
+    return out;
+};
+
+vec3.transformMat4 = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2];
+
+    out[0] = x * m[0] + y * m[4] + z * m[8] + m[12];
+    out[1] = x * m[1] + y * m[5] + z * m[9] + m[13];
+    out[2] = x * m[2] + y * m[6] + z * m[10] + m[14];
+
+    return out;
+};
+
+vec3.transformMat4Rotation = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2];
+
+    out[0] = x * m[0] + y * m[4] + z * m[8];
+    out[1] = x * m[1] + y * m[5] + z * m[9];
+    out[2] = x * m[2] + y * m[6] + z * m[10];
+
+    return out;
+};
+
+vec3.transformProjection = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        d = x * m[3] + y * m[7] + z * m[11] + m[15];
+
+    d = d !== 0 ? 1 / d : d;
+
+    out[0] = (x * m[0] + y * m[4] + z * m[8] + m[12]) * d;
+    out[1] = (x * m[1] + y * m[5] + z * m[9] + m[13]) * d;
+    out[2] = (x * m[2] + y * m[6] + z * m[10] + m[14]) * d;
+
+    return out;
+};
+
+vec3.transformQuat = function(out, a, q) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        qx = q[0],
+        qy = q[1],
+        qz = q[2],
+        qw = q[3],
+
+        ix = qw * x + qy * z - qz * y,
+        iy = qw * y + qz * x - qx * z,
+        iz = qw * z + qx * y - qy * x,
+        iw = -qx * x - qy * y - qz * z;
+
+    out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+    out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+    out[2] = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+
+    return out;
+};
+
+vec3.positionFromMat4 = function(out, m) {
+
+    out[0] = m[12];
+    out[1] = m[13];
+    out[2] = m[14];
+
+    return out;
+};
+
+vec3.scaleFromMat3 = function(out, m) {
+
+    out[0] = vec3.lengthValues(m[0], m[3], m[6]);
+    out[1] = vec3.lengthValues(m[1], m[4], m[7]);
+    out[2] = vec3.lengthValues(m[2], m[5], m[8]);
+
+    return out;
+};
+
+vec3.scaleFromMat4 = function(out, m) {
+
+    out[0] = vec3.lengthValues(m[0], m[4], m[8]);
+    out[1] = vec3.lengthValues(m[1], m[5], m[9]);
+    out[2] = vec3.lengthValues(m[2], m[6], m[10]);
+
+    return out;
+};
+
+vec3.equal = function(a, b) {
+    return !(
+        a[0] !== b[0] ||
+        a[1] !== b[1] ||
+        a[2] !== b[2]
+    );
+};
+
+vec3.notEqual = function(a, b) {
+    return (
+        a[0] !== b[0] ||
+        a[1] !== b[1] ||
+        a[2] !== b[2]
+    );
+};
+
+vec3.str = function(out) {
+
+    return "Vec3(" + out[0] + ", " + out[1] + ", " + out[2] + ")";
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/color/node_modules/vec4/src/index.js */
+
+var mathf = require(215);
+
+
+var vec4 = exports;
+
+
+vec4.ArrayType = typeof(Float32Array) !== "undefined" ? Float32Array : mathf.ArrayType;
+
+
+vec4.create = function(x, y, z, w) {
+    var out = new vec4.ArrayType(4);
+
+    out[0] = x !== undefined ? x : 0;
+    out[1] = y !== undefined ? y : 0;
+    out[2] = z !== undefined ? z : 0;
+    out[3] = w !== undefined ? w : 1;
+
+    return out;
+};
+
+vec4.copy = function(out, a) {
+
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+
+    return out;
+};
+
+vec4.clone = function(a) {
+    var out = new vec4.ArrayType(4);
+
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+
+    return out;
+};
+
+vec4.set = function(out, x, y, z, w) {
+
+    out[0] = x !== undefined ? x : 0;
+    out[1] = y !== undefined ? y : 0;
+    out[2] = z !== undefined ? z : 0;
+    out[3] = w !== undefined ? w : 0;
+
+    return out;
+};
+
+vec4.add = function(out, a, b) {
+
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
+
+    return out;
+};
+
+vec4.sub = function(out, a, b) {
+
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    out[2] = a[2] - b[2];
+    out[3] = a[3] - b[3];
+
+    return out;
+};
+
+vec4.mul = function(out, a, b) {
+
+    out[0] = a[0] * b[0];
+    out[1] = a[1] * b[1];
+    out[2] = a[2] * b[2];
+    out[3] = a[3] * b[3];
+
+    return out;
+};
+
+vec4.div = function(out, a, b) {
+    var bx = b[0],
+        by = b[1],
+        bz = b[2],
+        bw = b[3];
+
+    out[0] = a[0] * (bx !== 0 ? 1 / bx : bx);
+    out[1] = a[1] * (by !== 0 ? 1 / by : by);
+    out[2] = a[2] * (bz !== 0 ? 1 / bz : bz);
+    out[3] = a[3] * (bw !== 0 ? 1 / bw : bw);
+
+    return out;
+};
+
+vec4.sadd = function(out, a, s) {
+
+    out[0] = a[0] + s;
+    out[1] = a[1] + s;
+    out[2] = a[2] + s;
+    out[3] = a[3] + s;
+
+    return out;
+};
+
+vec4.ssub = function(out, a, s) {
+
+    out[0] = a[0] - s;
+    out[1] = a[1] - s;
+    out[2] = a[2] - s;
+    out[3] = a[3] - s;
+
+    return out;
+};
+
+vec4.smul = function(out, a, s) {
+
+    out[0] = a[0] * s;
+    out[1] = a[1] * s;
+    out[2] = a[2] * s;
+    out[3] = a[3] * s;
+
+    return out;
+};
+
+vec4.sdiv = function(out, a, s) {
+    s = s !== 0 ? 1 / s : s;
+
+    out[0] = a[0] * s;
+    out[1] = a[1] * s;
+    out[2] = a[2] * s;
+    out[3] = a[3] * s;
+
+    return out;
+};
+
+vec4.lengthSqValues = function(x, y, z, w) {
+
+    return x * x + y * y + z * z + w * w;
+};
+
+vec4.lengthValues = function(x, y, z, w) {
+    var lsq = vec4.lengthSqValues(x, y, z, w);
+
+    return lsq !== 0 ? mathf.sqrt(lsq) : lsq;
+};
+
+vec4.invLengthValues = function(x, y, z, w) {
+    var lsq = vec4.lengthSqValues(x, y, z, w);
+
+    return lsq !== 0 ? 1 / mathf.sqrt(lsq) : lsq;
+};
+
+vec4.dot = function(a, b) {
+
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+};
+
+vec4.lengthSq = function(a) {
+
+    return vec4.dot(a, a);
+};
+
+vec4.length = function(a) {
+    var lsq = vec4.lengthSq(a);
+
+    return lsq !== 0 ? mathf.sqrt(lsq) : lsq;
+};
+
+vec4.invLength = function(a) {
+    var lsq = vec4.lengthSq(a);
+
+    return lsq !== 0 ? 1 / mathf.sqrt(lsq) : lsq;
+};
+
+vec4.setLength = function(out, a, length) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3],
+        s = length * vec4.invLengthValues(x, y, z, w);
+
+    out[0] = x * s;
+    out[1] = y * s;
+    out[2] = z * s;
+    out[3] = w * s;
+
+    return out;
+};
+
+vec4.normalize = function(out, a) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3],
+        lsq = vec4.invLengthValues(x, y, z, w);
+
+    out[0] = x * lsq;
+    out[1] = y * lsq;
+    out[2] = z * lsq;
+    out[3] = w * lsq;
+
+    return out;
+};
+
+vec4.inverse = function(out, a) {
+
+    out[0] = a[0] * -1;
+    out[1] = a[1] * -1;
+    out[2] = a[2] * -1;
+    out[3] = a[3] * -1;
+
+    return out;
+};
+
+vec4.lerp = function(out, a, b, x) {
+    var lerp = mathf.lerp;
+
+    out[0] = lerp(a[0], b[0], x);
+    out[1] = lerp(a[1], b[1], x);
+    out[2] = lerp(a[2], b[2], x);
+    out[3] = lerp(a[3], b[3], x);
+
+    return out;
+};
+
+vec4.min = function(out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        aw = a[3],
+        bx = b[0],
+        by = b[1],
+        bz = b[2],
+        bw = b[3];
+
+    out[0] = bx < ax ? bx : ax;
+    out[1] = by < ay ? by : ay;
+    out[2] = bz < az ? bz : az;
+    out[3] = bw < aw ? bw : aw;
+
+    return out;
+};
+
+vec4.max = function(out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        aw = a[3],
+        bx = b[0],
+        by = b[1],
+        bz = b[2],
+        bw = b[3];
+
+    out[0] = bx > ax ? bx : ax;
+    out[1] = by > ay ? by : ay;
+    out[2] = bz > az ? bz : az;
+    out[3] = bw > aw ? bw : aw;
+
+    return out;
+};
+
+vec4.clamp = function(out, a, min, max) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3],
+        minx = min[0],
+        miny = min[1],
+        minz = min[2],
+        minw = min[3],
+        maxx = max[0],
+        maxy = max[1],
+        maxz = max[2],
+        maxw = max[3];
+
+    out[0] = x < minx ? minx : x > maxx ? maxx : x;
+    out[1] = y < miny ? miny : y > maxy ? maxy : y;
+    out[2] = z < minz ? minz : z > maxz ? maxz : z;
+    out[3] = w < minw ? minw : w > maxw ? maxw : w;
+
+    return out;
+};
+
+vec4.transformMat4 = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3];
+
+    out[0] = x * m[0] + y * m[4] + z * m[8] + w * m[12];
+    out[1] = x * m[1] + y * m[5] + z * m[9] + w * m[13];
+    out[2] = x * m[2] + y * m[6] + z * m[10] + w * m[14];
+    out[3] = x * m[3] + y * m[7] + z * m[11] + w * m[15];
+
+    return out;
+};
+
+vec4.transformProjection = function(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3],
+        d = x * m[3] + y * m[7] + z * m[11] + w * m[15];
+
+    d = d !== 0 ? 1 / d : d;
+
+    out[0] = (x * m[0] + y * m[4] + z * m[8] + w * m[12]) * d;
+    out[1] = (x * m[1] + y * m[5] + z * m[9] + w * m[13]) * d;
+    out[2] = (x * m[2] + y * m[6] + z * m[10] + w * m[14]) * d;
+    out[3] = (x * m[3] + y * m[7] + z * m[11] + w * m[15]) * d;
+
+    return out;
+};
+
+vec4.positionFromMat4 = function(out, m) {
+
+    out[0] = m[12];
+    out[1] = m[13];
+    out[2] = m[14];
+    out[3] = m[15];
+
+    return out;
+};
+
+vec4.scaleFromMat4 = function(out, m) {
+
+    out[0] = vec4.lengthValues(m[0], m[4], m[8], m[12]);
+    out[1] = vec4.lengthValues(m[1], m[5], m[9], m[13]);
+    out[2] = vec4.lengthValues(m[2], m[6], m[10], m[14]);
+    out[3] = vec4.lengthValues(m[3], m[7], m[11], m[15]);
+
+    return out;
+};
+
+vec4.equal = function(a, b) {
+    return !(
+        a[0] !== b[0] ||
+        a[1] !== b[1] ||
+        a[2] !== b[2] ||
+        a[3] !== b[3]
+    );
+};
+
+vec4.notEqual = function(a, b) {
+    return (
+        a[0] !== b[0] ||
+        a[1] !== b[1] ||
+        a[2] !== b[2] ||
+        a[3] !== b[3]
+    );
+};
+
+vec4.str = function(out) {
+
+    return "Vec4(" + out[0] + ", " + out[1] + ", " + out[2] + ", " + out[3] + ")";
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/css/node_modules/color/node_modules/mathf/node_modules/is_nan/src/index.js */
+
+var isNumber = require(21);
+
+
+module.exports = Number.isNaN || function isNaN(obj) {
+    return isNumber(obj) && obj !== obj;
+};
+
+
+},
+function(require, exports, module, undefined, global) {
+/* ../../node_modules/prop_types/node_modules/i18n/src/index.js */
 
 var isArray = require(17),
     isString = require(18),
     isObject = require(30),
-    format = require(181),
-    fastSlice = require(182),
+    format = require(222),
+    fastSlice = require(194),
     has = require(22),
     defineProperty = require(51);
 
@@ -9318,7 +12877,7 @@ function create(flatMode, throwMissingError) {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/is_regexp/src/index.js */
+/* ../../node_modules/prop_types/node_modules/is_regexp/src/index.js */
 
 var isObject = require(30);
 
@@ -9364,7 +12923,7 @@ module.exports = {
 
 },
 function(require, exports, module, undefined, global) {
-/* ../../node_modules/format/src/index.js */
+/* ../../node_modules/prop_types/node_modules/format/src/index.js */
 
 var isString = require(18),
     isObject = require(30),
@@ -9372,7 +12931,7 @@ var isString = require(18),
     isArrayLike = require(53),
     isFunction = require(16),
     indexOf = require(54),
-    fastSlice = require(182);
+    fastSlice = require(194);
 
 
 var reFormat = /%([a-z%])/g,
@@ -9484,54 +13043,6 @@ format.o = function(value) {
 };
 
 format.inspect = format.o;
-
-
-},
-function(require, exports, module, undefined, global) {
-/* ../../node_modules/fast_slice/src/index.js */
-
-var clamp = require(183),
-    isNumber = require(21);
-
-
-module.exports = fastSlice;
-
-
-function fastSlice(array, offset) {
-    var length = array.length,
-        newLength, i, il, result, j;
-
-    offset = clamp(isNumber(offset) ? offset : 0, 0, length);
-    i = offset - 1;
-    il = length - 1;
-    newLength = length - offset;
-    result = new Array(newLength);
-    j = 0;
-
-    while (i++ < il) {
-        result[j++] = array[i];
-    }
-
-    return result;
-}
-
-
-},
-function(require, exports, module, undefined, global) {
-/* ../../node_modules/clamp/src/index.js */
-
-module.exports = clamp;
-
-
-function clamp(x, min, max) {
-    if (x < min) {
-        return min;
-    } else if (x > max) {
-        return max;
-    } else {
-        return x;
-    }
-}
 
 
 }], null, void(0), (new Function("return this;"))()));
