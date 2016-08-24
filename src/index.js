@@ -43,7 +43,7 @@ function Link(props, children, context) {
 virt.Component.extend(Link, "virt-ui-Link");
 
 Link.contextTypes = {
-    muiTheme: propTypes.implement({
+    theme: propTypes.implement({
         palette: propTypes.implement({
             accentColor: propTypes.string
         }).isRequired
@@ -108,7 +108,7 @@ LinkPrototype.__onBlur = function(e) {
 };
 
 LinkPrototype.getStyle = function() {
-    var accentColor = this.context.muiTheme.palette.accentColor,
+    var accentColor = this.context.theme.palette.accentColor,
         state = this.state,
         style = {
             color: accentColor,
